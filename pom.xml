@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.soloplan.oss.sonarqube.plugin.resharper.clt</groupId>
+  <artifactId>resharper-clt-plugin</artifactId>
+  <packaging>sonar-plugin</packaging>
+  <version>0.1.0-Snapshot</version>
+
+  <name>ReSharper command line tools plugin for SonarQube 6.7.x LTS</name>
+  <description>Enables the use of ReSharper command line tools with rules on C# and VB.NET code.</description>
+  <url>https://www.github.com/Soloplan/sonarqube-resharper-clt</url>
+  <inceptionYear>2018</inceptionYear>
+  <organization>
+    <name>Soloplan GmbH</name>
+    <url>https://www.soloplan.com</url>
+  </organization>
+
+  <properties>
+    <jdk.min.version>1.9</jdk.min.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- Identifies the plugin within SonarQube and is used for translation of string resources -->
+    <sonar.pluginName>ReSharperCLT</sonar.pluginName>
+    <sonar.pluginClass>com.soloplan.oss.sonarqube.plugin.resharper.clt.ReSharperCltPlugin</sonar.pluginClass>
+    <sonar.apiVersion>6.7.1</sonar.apiVersion>
+    <sonar.sources>src/main/java</sonar.sources>
+  </properties>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>lightslategray</id>
+      <name>Thomas Rödel</name>
+      <url>https://www.github.com/LightSlateGray</url>
+      <email>thomas.roedel@soloplan.de</email>
+      <organization>Soloplan GmbH</organization>
+      <organizationUrl>https://www.soloplan.com</organizationUrl>
+    </developer>
+    <developer>
+      <id>brightlight</id>
+      <name>Markus Hastreiter</name>
+      <url>https://www.github.com/BrightLight</url>
+      <email>markus.hastreiter@soloplan.de</email>
+      <organization>Soloplan GmbH</organization>
+      <organizationUrl>https://www.soloplan.com</organizationUrl>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git@github.com:Soloplan/resharper-clt-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:Soloplan/resharper-clt-plugin.git</developerConnection>
+    <url>https://www.github.com/Soloplan/resharper-clt-plugin</url>
+    <tag>HEAD</tag>
+  </scm>
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://www.github.com/Soloplan/resharper-clt-plugin/issues</url>
+  </issueManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <version>${sonar.apiVersion}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- packaged with the plugin -->
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+
+    <!-- unit tests -->
+    <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-testing-harness</artifactId>
+      <version>${sonar.apiVersion}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>RELEASE</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <version>1.18.0.372</version>
+        <extensions>true</extensions>
+        <configuration>
+          <pluginKey>${sonar.pluginName}</pluginKey>
+          <pluginClass>${sonar.pluginClass}</pluginClass>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.7.0</version>
+        <configuration>
+          <source>${jdk.min.version}</source>
+          <target>${jdk.min.version}</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <!-- Used to integrate file resources into the resulting JAR file -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.2</version>
+      </plugin>
+      <plugin>
+        <!-- Used to generate the maven report for this plugin when building goal 'site' -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.9</version>
+      </plugin>
+      <plugin>
+        <!-- UTF-8 resource bundles are not supported by Java, so they must be converted during build -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>native2ascii-maven-plugin</artifactId>
+        <version>2.0.1</version>
+        <executions>
+          <execution>
+            <id>utf8-to-latin1</id>
+            <goals>
+              <goal>resources</goal>
+            </goals>
+            <phase>process-resources</phase><!-- default -->
+            <configuration>
+              <!-- For some reasons I can't explain, it seems that this plugin always uses the default value src/main/native2ascii :-/ -->
+              <srcDir>${project.build.sourceDirectory}/../resources/org/sonar/l10n/${sonar.pluginName}/</srcDir>
+              <targetDir>${project.build.outputDirectory}/org/sonar/l10n/${sonar.pluginName}/</targetDir>
+              <encoding>${project.build.sourceEncoding}</encoding>
+              <includes>
+                <include>**/*.properties</include><!-- default -->
+              </includes>
+              <excludes>
+                <exclude></exclude><!-- nothing by default -->
+              </excludes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
