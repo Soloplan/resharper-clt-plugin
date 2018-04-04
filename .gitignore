@@ -33,6 +33,7 @@ hs_err_pid*
 
 # IntelliJ IDEA specific stuff:
 .idea/**
+*.iml
 
 # CMake
 cmake-build-debug/
