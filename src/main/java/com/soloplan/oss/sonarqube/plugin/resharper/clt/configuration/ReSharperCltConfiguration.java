@@ -10,6 +10,9 @@ public class ReSharperCltConfiguration {
   public static final String PROPERTY_KEY_CS_FILE_SUFFIXES = "sonar.csharp.file.suffixes";
   public static final String PROPERTY_KEY_CS_FILE_SUFFIXES_DEFAULT_VALUE = ".cs";
 
+  public static final String PROPERTY_KEY_VBNET_FILE_SUFFIXES = "sonar.vbnet.file.suffixes";
+  public static final String PROPERTY_KEY_VBNET_FILE_SUFFIXES_DEFAULT_VALUE = ".vb";
+
   public static final String PROPERTY_KEY_CS_REPORT_PATH = "resharper.clt.cs.reportPath";
   public static final String PROPERTY_KEY_VBNET_REPORT_PATH = "resharper.clt.vbnet.reportPath";
 
