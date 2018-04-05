@@ -1,6 +1,7 @@
 package com.soloplan.oss.sonarqube.plugin.resharper.clt.properties;
 
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.configuration.ReSharperCltConfiguration;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.interfaces.PluginConfigurationProperty;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +14,8 @@ import java.util.List;
 /**
  * An abstract base class used to create {@link PropertyDefinition}s for a SonarQube {@link org.sonar.api.Plugin}.
  */
-public abstract class BasePluginProperty {
+public abstract class BasePluginProperty
+    implements PluginConfigurationProperty {
 
   /**
    * Gets the {@link String} value to be used as {@link PropertyDefinition#key} when {@link #buildPropertyDefinition()} is called.
