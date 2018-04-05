@@ -31,14 +31,14 @@ public class CSharpLanguage
   public static final String LANGUAGE_NAME = "cs";
 
   /**
-   * An implementation of the {@see Configuration} interface provided to the constructor by SonarQube.
+   * An implementation of the {@link Configuration} interface provided to the constructor by SonarQube.
    */
   private final Configuration config;
 
   /**
    * Creates a new instance of the {@link CSharpLanguage} class storing a reference to the supplied {@link Configuration} instance
    * internally.
-   * <p/>
+   * <p>
    * The {@link Configuration} instance is provided via dependency injection. Visit the
    * <a href="https://docs.sonarqube.org/display/DEV/API+Basics#APIBasics-Configuration">official SonarQube API documentation</a> for more
    * information.

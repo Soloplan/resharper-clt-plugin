@@ -32,7 +32,7 @@ public class CSharpRulesDefinition
 
   /**
    * Gets an implementation of the {@link Logger} interface for this class.
-   * <p/>
+   * <p>
    * Please note, that message arguments are defined with {@code {}}, but not with
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html">Formatter</a> syntax.
    *
@@ -46,7 +46,7 @@ public class CSharpRulesDefinition
   /**
    * Creates a new instance of the {@link CSharpRulesDefinition} class storing a reference to the supplied {@link Configuration} instance
    * internally.
-   * <p/>
+   * <p>
    * The {@link Configuration} instance is provided via dependency injection. Visit the
    * <a href="https://docs.sonarqube.org/display/DEV/API+Basics#APIBasics-Configuration">official SonarQube API documentation</a> for more
    * information.

@@ -67,14 +67,13 @@ public final class SonarQubeRuleDefinitionModel {
   /**
    * Gets the rule type of this rule definition which corresponds to the characteristics of the following table.
    * <table>
+   * <caption>Associations between rule types and characteristics</caption>
    * <tr><th>Rule type</th><th>Characteristic</th></tr>
    * <tr><td>{@link RuleType#CODE_SMELL}</td><td>Maintainability</td></tr>
    * <tr><td>{@link RuleType#BUG}</td><td>Reliability</td></tr>
    * <tr><td>{@link RuleType#VULNERABILITY}</td><td>Vulnerability</td></tr>
    * </table>
-   * <p>
    * Defaults to {@link RuleType#BUG} if not explicitly set via call to {@link #setRuleType(RuleType)}.
-   * </p>
    *
    * @return The type to set for this rule definition.
    *
@@ -90,6 +89,7 @@ public final class SonarQubeRuleDefinitionModel {
   /**
    * Sets the rule type of this rule definition which corresponds to the characteristics of the following table.
    * <table>
+   * <caption>Associations between rule types and characteristics</caption>
    * <tr><th>Rule type</th><th>Characteristic</th></tr>
    * <tr><td>{@link RuleType#CODE_SMELL}</td><td>Maintainability</td></tr>
    * <tr><td>{@link RuleType#BUG}</td><td>Reliability</td></tr>
