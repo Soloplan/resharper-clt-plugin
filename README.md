@@ -9,4 +9,4 @@ This plugin enables the analysis of C# ~~and VB.NET~~(not yet, sorry) source fil
 * ~~Compatible with the [SonarVB Plugin (Visual Basic .NET)](https://docs.sonarqube.org/display/PLUG/SonarVB)~~(not yet, sorry)
 
 ## License
-This project is licensed under the Apache License 2.0 - see the [LICENSE.md](./LICENSE.md) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICENSE) file for details.
