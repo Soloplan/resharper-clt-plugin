@@ -27,8 +27,12 @@ import java.util.Collection;
  *
  * @param <T>
  *     The generic type parameter that defines the input of the implementation.
+ *
+ * @deprecated Use {@link Converter Converter&lt;T,SonarQubeRuleDefinitionModel&gt;} interface instead.
  */
-public interface SonarQubeRuleDefinitionConverter<T> {
+@Deprecated(forRemoval = true)
+public interface SonarQubeRuleDefinitionConverter<T>
+    extends Converter<T, SonarQubeRuleDefinitionModel> {
 
   /**
    * Converts a single instance of the generic type {@link T} to an instance of class {@link SonarQubeRuleDefinitionModel}. If argument
