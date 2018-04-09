@@ -37,6 +37,7 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -47,9 +48,8 @@ public class CSharpRulesDefinition
     implements RulesDefinition {
 
   /**
-   * Gets an implementation of the {@link Logger} interface for this class.
-   * <p>
-   * Please note, that message arguments are defined with {@code {}}, but not with
+   * Gets an implementation of the {@link Logger} interface for this class. Please note, that message arguments are defined with {@code {}},
+   * but not with
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html">Formatter</a> syntax.
    *
    * @see Logger
@@ -61,9 +61,7 @@ public class CSharpRulesDefinition
 
   /**
    * Creates a new instance of the {@link CSharpRulesDefinition} class storing a reference to the supplied {@link Configuration} instance
-   * internally.
-   * <p>
-   * The {@link Configuration} instance is provided via dependency injection. Visit the
+   * internally. The {@link Configuration} instance is provided via dependency injection. Visit the
    * <a href="https://docs.sonarqube.org/display/DEV/API+Basics#APIBasics-Configuration">official SonarQube API documentation</a> for more
    * information.
    *
@@ -186,12 +184,12 @@ public class CSharpRulesDefinition
     // Create a new SAX parser implementation that will parse and convert the XML file of the InspectCode command line tool
     final InspectCodeXmlFileParser xmlFileParser = new InspectCodeXmlFileParser(
         new InspectCodeIssueToSonarQubeRuleDefinitionConverter(),
-        ObjectPredicates.isNotNullPredicate(),
-        InspectCodePredicates.hasValidIssueSeverity(),
-        InspectCodePredicates.hasNonEmptyIssueDescription(),
-        InspectCodePredicates.isCSharpIssueDefinition(),
-        InspectCodePredicates.isWebRelatedCategory().negate());
-
+        Arrays.asList(
+            ObjectPredicates.isNotNullPredicate(),
+            InspectCodePredicates.hasValidIssueSeverity(),
+            InspectCodePredicates.hasNonEmptyIssueDescription(),
+            InspectCodePredicates.isCSharpIssueDefinition(),
+            InspectCodePredicates.isWebRelatedCategory().negate()));
     try {
       final SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
       saxParser.parse(xmlFileInputStream, xmlFileParser);
