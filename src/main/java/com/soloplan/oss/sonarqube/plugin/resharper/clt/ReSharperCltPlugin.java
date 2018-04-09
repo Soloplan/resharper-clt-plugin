@@ -18,6 +18,7 @@ package com.soloplan.oss.sonarqube.plugin.resharper.clt;
 
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.properties.*;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.rules.CSharpRulesDefinition;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.sensors.CSharpSensor;
 import org.sonar.api.Plugin;
 
 /**
@@ -30,7 +31,7 @@ public class ReSharperCltPlugin
   @Override
   public void define(Context context) {
     // Register languages supported by this plugin
-    // context.addExtension(CSharpLanguage.class); // NOTE: Not yet finished.
+    // context.addExtension(CSharpLanguage.class); // NOTE: Not yet finished or maybe unnecessary.
 
     // Register rules defined by this plugin
     context.addExtension(CSharpRulesDefinition.class);
@@ -44,7 +45,9 @@ public class ReSharperCltPlugin
         new ProjectNameProperty().buildPropertyDefinition(),
         new InspectCodePathProperty().buildPropertyDefinition(),
         new InspectCodeVersionProperty().buildPropertyDefinition(),
-        new InspectCodeXmlFileSchemaValidationProperty().buildPropertyDefinition()
-    );
+        new InspectCodeXmlFileSchemaValidationProperty().buildPropertyDefinition());
+
+    // Register sensor extension which parses the resulting XML file and creates SonarQube issues
+    context.addExtension(CSharpSensor.class);
   }
 }
