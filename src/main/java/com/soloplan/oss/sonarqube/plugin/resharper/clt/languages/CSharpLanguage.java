@@ -29,7 +29,7 @@ import java.util.Arrays;
  *
  * @see <a href="https://www.sonarsource.com/products/codeanalyzers/sonarcsharp.html">SonarC# code analyzer</a>
  */
-public class CSharpLanguage
+public final class CSharpLanguage
     extends AbstractLanguage {
 
   /**
@@ -53,9 +53,7 @@ public class CSharpLanguage
 
   /**
    * Creates a new instance of the {@link CSharpLanguage} class storing a reference to the supplied {@link Configuration} instance
-   * internally.
-   * <p>
-   * The {@link Configuration} instance is provided via dependency injection. Visit the
+   * internally. The {@link Configuration} instance is provided via dependency injection. Visit the
    * <a href="https://docs.sonarqube.org/display/DEV/API+Basics#APIBasics-Configuration">official SonarQube API documentation</a> for more
    * information.
    *
@@ -95,5 +93,17 @@ public class CSharpLanguage
         .map(StringUtils::trimToEmpty)
         .filter(StringUtils::isNotBlank)
         .toArray(String[]::new);
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    // The base class will decide the equality based on the language key
+    return super.equals(other);
+  }
+
+  @Override
+  public int hashCode() {
+    // The base class will return the hash code of the language key
+    return super.hashCode();
   }
 }
