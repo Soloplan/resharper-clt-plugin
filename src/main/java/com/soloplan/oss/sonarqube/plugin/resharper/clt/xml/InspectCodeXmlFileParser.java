@@ -17,7 +17,7 @@
 package com.soloplan.oss.sonarqube.plugin.resharper.clt.xml;
 
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.enumerations.XmlParserErrorSeverity;
-import com.soloplan.oss.sonarqube.plugin.resharper.clt.interfaces.SonarQubeRuleDefinitionConverter;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.interfaces.Converter;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.interfaces.SonarQubeRuleDefinitionProvider;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.InspectCodeIssueDefinitionModel;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.SonarQubeRuleDefinitionModel;
@@ -104,11 +104,11 @@ public class InspectCodeXmlFileParser
   private static final Logger LOGGER = Loggers.get(InspectCodeXmlFileParser.class);
 
   /**
-   * Stores a reference to an implementation of the {@link SonarQubeRuleDefinitionConverter} used to convert the parsed instances of class
-   * {@link InspectCodeIssueDefinitionModel} to valid {@link SonarQubeRuleDefinitionModel} instances.
+   * Stores a reference to an implementation of the {@link Converter} interface used to convert the parsed instances of class {@link
+   * InspectCodeIssueDefinitionModel} to valid {@link SonarQubeRuleDefinitionModel} instances.
    */
   @NotNull
-  private final SonarQubeRuleDefinitionConverter<InspectCodeIssueDefinitionModel> sonarQubeRuleDefinitionConverter;
+  private final Converter<InspectCodeIssueDefinitionModel, SonarQubeRuleDefinitionModel> sonarQubeRuleDefinitionConverter;
 
   /**
    * A {@link Collection} of {@link InspectCodeIssueDefinitionModel} instances that have been parsed successfully and considered valid
@@ -130,26 +130,25 @@ public class InspectCodeXmlFileParser
 
   /**
    * Creates a new instance of the {@link InspectCodeXmlFileParser} class, which will use the supplied implementation of the {@link
-   * SonarQubeRuleDefinitionConverter} to convert the parsed {@link InspectCodeIssueDefinitionModel} instances to valid {@link
+   * Converter} interface to convert the parsed {@link InspectCodeIssueDefinitionModel} instances to valid {@link
    * SonarQubeRuleDefinitionModel} instances after each call to {@link #getRuleDefinitions()}. The supplied {@link Predicate}s are combined
    * using a logical {@code and} and will be used to decide whether the parsed issue definitions are valid.
    *
    * @param ruleDefinitionConverter
-   *     An implementation of the {@link SonarQubeRuleDefinitionConverter} used to convert the parsed {@link
-   *     InspectCodeIssueDefinitionModel} instances to valid {@link SonarQubeRuleDefinitionModel} instances.
+   *     An implementation of the {@link Converter} interface used to convert the parsed {@link InspectCodeIssueDefinitionModel} instances
+   *     to valid {@link SonarQubeRuleDefinitionModel} instances.
    * @param filterPredicates
    *     All supplied {@link Predicate}s are combined using a logical {@code and} and will be used to decide whether the parsed issue
    *     definitions are valid and should be added to the resulting collection.
    */
-  @SafeVarargs
   public InspectCodeXmlFileParser(
-      @NotNull SonarQubeRuleDefinitionConverter<InspectCodeIssueDefinitionModel> ruleDefinitionConverter,
-      @NotNull Predicate<InspectCodeIssueDefinitionModel>... filterPredicates) {
+      @NotNull Converter<InspectCodeIssueDefinitionModel, SonarQubeRuleDefinitionModel> ruleDefinitionConverter,
+      @NotNull Collection<Predicate<InspectCodeIssueDefinitionModel>> filterPredicates) {
     // Store a reference to the supplied rule definition converter
     this.sonarQubeRuleDefinitionConverter = ruleDefinitionConverter;
 
     // Combine all supplied filter predicates
-    if (filterPredicates.length == 0) {
+    if (filterPredicates.isEmpty()) {
       this.validInspectCodeIssueDefinitionPredicate = x -> true;
     } else {
       // Helper variable
@@ -212,37 +211,30 @@ public class InspectCodeXmlFileParser
       for (int index = 0; index < length; index++) {
         // Retrieve the name of the attribute and trim any leading or trailing whitespaces
         switch (attributes.getQName(index).trim()) {
-          case ATTRIBUTE_NAME_CATEGORY: {
+          case ATTRIBUTE_NAME_CATEGORY:
             this.currentIssueDefinition.setCategory(attributes.getValue(index));
             break;
-          }
-          case ATTRIBUTE_NAME_CATEGORYID: {
+          case ATTRIBUTE_NAME_CATEGORYID:
             this.currentIssueDefinition.setCategoryId(attributes.getValue(index));
             break;
-          }
-          case ATTRIBUTE_NAME_SUBCATEGORY: {
+          case ATTRIBUTE_NAME_SUBCATEGORY:
             this.currentIssueDefinition.setSubCategory(attributes.getValue(index));
             break;
-          }
-          case ATTRIBUTE_NAME_DESCRIPTION: {
+          case ATTRIBUTE_NAME_DESCRIPTION:
             this.currentIssueDefinition.setDescription(attributes.getValue(index));
             break;
-          }
-          case ATTRIBUTE_NAME_SEVERITY: {
+          case ATTRIBUTE_NAME_SEVERITY:
             this.currentIssueDefinition.setSeverity(attributes.getValue(index));
             break;
-          }
-          case ATTRIBUTE_NAME_WIKIURL: {
+          case ATTRIBUTE_NAME_WIKIURL:
             this.currentIssueDefinition.setWikiUrl(attributes.getValue(index));
             break;
-          }
-          case ATTRIBUTE_NAME_GLOBAL: {
+          case ATTRIBUTE_NAME_GLOBAL:
             this.currentIssueDefinition.setGlobalRuleDefinition(attributes.getValue(index));
             break;
-          }
-          default: {
+          default:
             LOGGER.debug("Unhandled XML attribute {} found for element {} while parsing.", attributes.getQName(index), qualifiedName);
-          }
+            break;
         }
       }
     }
@@ -331,9 +323,9 @@ public class InspectCodeXmlFileParser
       case Warning:
         LOGGER.warn(errorMessage, saxParseException);
         break;
-      default:
       case Error:
       case Fatal:
+      default:
         LOGGER.error(errorMessage, saxParseException);
         break;
     }
