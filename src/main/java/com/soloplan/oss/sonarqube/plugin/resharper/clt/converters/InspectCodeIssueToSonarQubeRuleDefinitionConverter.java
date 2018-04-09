@@ -19,7 +19,7 @@ package com.soloplan.oss.sonarqube.plugin.resharper.clt.converters;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.enumerations.InspectCodeIssueSeverity;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.enumerations.SonarQubeRuleDescriptionSyntax;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.enumerations.SonarQubeSeverity;
-import com.soloplan.oss.sonarqube.plugin.resharper.clt.interfaces.SonarQubeRuleDefinitionConverter;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.interfaces.Converter;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.InspectCodeIssueDefinitionModel;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.SonarQubeRuleDefinitionModel;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -33,11 +33,11 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 /**
- * An implementation of the {@link SonarQubeRuleDefinitionConverter} interface specific to instances of the {@link
- * InspectCodeIssueDefinitionModel}.
+ * An implementation of the {@link Converter} interface specific to instances of class {@link InspectCodeIssueDefinitionModel}, which will
+ * be converted to instances of class {@link SonarQubeRuleDefinitionModel}.
  */
 public class InspectCodeIssueToSonarQubeRuleDefinitionConverter
-    implements SonarQubeRuleDefinitionConverter<InspectCodeIssueDefinitionModel> {
+    implements Converter<InspectCodeIssueDefinitionModel, SonarQubeRuleDefinitionModel> {
 
   @Override
   public SonarQubeRuleDefinitionModel convert(@Nullable InspectCodeIssueDefinitionModel inspectCodeIssueDefinitionModel) {
@@ -81,8 +81,8 @@ public class InspectCodeIssueToSonarQubeRuleDefinitionConverter
    * {@code description} is {@code null} or an empty string, a default description will be returned.
    *
    * @param description
-   *     The description of which all HTML entities will be escaped and to which the supplied {@code url} will be appended if not {@null}.
-   *     Passing {@code null} or an empty string as argument will result in a default string to be returned.
+   *     The description of which all HTML entities will be escaped and to which the supplied {@code url} will be appended if not {@code
+   *     null}. Passing {@code null} or an empty string as argument will result in a default string to be returned.
    * @param url
    *     A uniform resource locator for which an HTML hyperlink will be created and appended to the supplied {@code description}.
    *
