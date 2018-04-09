@@ -55,7 +55,7 @@ public final class SonarQubeRuleDefinitionModel {
   /** Indicates, whether the SonarQube rule definition is activated by default or not. */
   private boolean activatedByDefault = false;
 
-  // TODO Create a property for 'Rule tags', that accepts only strings containin the following characters: a-z, 0-9, '+', '-', '#', '.'
+  // TODO Create a property for 'Rule tags', that accepts only strings containing the following characters: a-z, 0-9, '+', '-', '#', '.'
 
   // endregion
 

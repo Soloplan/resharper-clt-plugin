@@ -48,8 +48,7 @@ public class VBNetLanguage
 
   /**
    * Creates a new instance of the {@link VBNetLanguage} class storing a reference to the supplied {@link Configuration} instance
-   * internally.
-   * The {@link Configuration} instance is provided via dependency injection. Visit the
+   * internally. The {@link Configuration} instance is provided via dependency injection. Visit the
    * <a href="https://docs.sonarqube.org/display/DEV/API+Basics#APIBasics-Configuration">official SonarQube API documentation</a> for more
    * information.
    *
