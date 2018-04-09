@@ -29,9 +29,9 @@ public final class InspectCodePredicates {
 
   /**
    * A case-insensitive, pre-compiled regular expression {@link Pattern} that excludes specific strings, which are set as value of {@link
-   * InspectCodeIssueDefinitionModel#getIssueId()} and known to not belong to the C# language. More specifically, this {@link Pattern} will
-   * filter out any string that starts with any of the values defined within the round brackets, ignoring whitespace characters at the start
-   * of the string and ensuring that the match will consist of at least three characters.
+   * InspectCodeIssueDefinitionModel#getIssueTypeId()} and known to not belong to the C# language. More specifically, this {@link Pattern}
+   * will filter out any string that starts with any of the values defined within the round brackets, ignoring whitespace characters at the
+   * start of the string and ensuring that the match will consist of at least three characters.
    */
   private static final Pattern PATTERN_ISSUE_IDENTIFIER_CSHARP =
       Pattern.compile("^\\s*(?!AngularHtml\\.|Asp\\.|Cpp|Css|Es\\dFeature|Html\\.|VB|Web\\.|WebConfig\\.)\\S{3,}", Pattern.CASE_INSENSITIVE);
@@ -71,7 +71,7 @@ public final class InspectCodePredicates {
    */
   public static Predicate<InspectCodeIssueDefinitionModel> isCSharpIssueDefinition() {
     return inspectCodeIssueDefinitionModel ->
-        PATTERN_ISSUE_IDENTIFIER_CSHARP.matcher(inspectCodeIssueDefinitionModel.getIssueId()).matches();
+        PATTERN_ISSUE_IDENTIFIER_CSHARP.matcher(inspectCodeIssueDefinitionModel.getIssueTypeId()).matches();
   }
 
   /**

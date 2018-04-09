@@ -47,8 +47,9 @@ public class InspectCodeIssueToSonarQubeRuleDefinitionConverter
     }
 
     // Create a new instance of the SonarQubeRuleDefinitionModel class and fill in the values of the supplied InspectCode issue definition
-    final SonarQubeRuleDefinitionModel ruleDefinitionModel = new SonarQubeRuleDefinitionModel(inspectCodeIssueDefinitionModel.getIssueId());
-    ruleDefinitionModel.setRuleName(inspectCodeIssueDefinitionModel.getIssueId());
+    final SonarQubeRuleDefinitionModel ruleDefinitionModel =
+        new SonarQubeRuleDefinitionModel(inspectCodeIssueDefinitionModel.getIssueTypeId());
+    ruleDefinitionModel.setRuleName(inspectCodeIssueDefinitionModel.getIssueTypeId());
     ruleDefinitionModel.setActivatedByDefault(false);
     ruleDefinitionModel.setRuleDescription(
         combineRuleDescription(inspectCodeIssueDefinitionModel.getDescription(), inspectCodeIssueDefinitionModel.getWikiUrl()),

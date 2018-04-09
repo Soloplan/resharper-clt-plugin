@@ -29,8 +29,8 @@ public class InspectCodeIssueDefinitionModel {
 
   // region Member variables
 
-  /** The issue identifier that should be unique within {@code InspectCode}. */
-  private final String issueId;
+  /** The issue type identifier that should be unique within {@code InspectCode}. */
+  private final String issueTypeId;
 
   /** The category name of the issue within {@code InspectCode}. */
   private String category;
@@ -56,13 +56,14 @@ public class InspectCodeIssueDefinitionModel {
   // endregion
 
   /**
-   * Creates a new instance of the {@link InspectCodeIssueDefinitionModel} class using the supplied {@code issueId} as unique identifier.
+   * Creates a new instance of the {@link InspectCodeIssueDefinitionModel} class using the supplied {@code issueTypeId} as unique
+   * identifier.
    *
-   * @param issueId
+   * @param issueTypeId
    *     The unique identifier of this issue as defined by {@code InspectCode}.
    */
-  public InspectCodeIssueDefinitionModel(@NotNull String issueId) {
-    this.issueId = issueId.trim();
+  public InspectCodeIssueDefinitionModel(@NotNull String issueTypeId) {
+    this.issueTypeId = issueTypeId.trim();
   }
 
   /**
@@ -70,8 +71,8 @@ public class InspectCodeIssueDefinitionModel {
    *
    * @return The unique identifier of this issue as defined by {@code InspectCode}.
    */
-  public String getIssueId() {
-    return issueId;
+  public String getIssueTypeId() {
+    return issueTypeId;
   }
 
   /**
@@ -263,18 +264,18 @@ public class InspectCodeIssueDefinitionModel {
       return false;
     }
 
-    return this.issueId.equals(((InspectCodeIssueDefinitionModel) other).issueId);
+    return this.issueTypeId.equals(((InspectCodeIssueDefinitionModel) other).issueTypeId);
   }
 
   @Override
   public int hashCode() {
-    return this.issueId.hashCode();
+    return this.issueTypeId.hashCode();
   }
 
   @Override
   public String toString() {
     return "InspectCodeIssueDefinitionModel{" +
-        "issueId='" + issueId + '\'' +
+        "issueTypeId='" + issueTypeId + '\'' +
         ", category='" + category + '\'' +
         ", categoryId='" + categoryId + '\'' +
         ", description='" + description + '\'' +
