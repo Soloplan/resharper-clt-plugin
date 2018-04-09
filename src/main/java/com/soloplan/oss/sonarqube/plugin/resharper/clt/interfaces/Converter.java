@@ -56,5 +56,5 @@ public interface Converter<I, O> {
    *     should be returned, even if the supplied {@code collection} is {@code null}.
    */
   @Contract("null -> !null; !null -> !null")
-  Collection<O> convertAll(Collection<I> collection);
+  Collection<O> convert(Collection<I> collection);
 }
