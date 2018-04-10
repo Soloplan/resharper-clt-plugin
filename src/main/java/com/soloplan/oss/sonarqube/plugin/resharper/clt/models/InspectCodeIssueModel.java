@@ -16,9 +16,7 @@
 
 package com.soloplan.oss.sonarqube.plugin.resharper.clt.models;
 
-/**
- * Data model class for issues detected by the {@code InspectCode} command line tool.
- */
+/** Data model class for issues detected by the {@code InspectCode} command line tool. */
 public class InspectCodeIssueModel {
 
   // region Member variables
@@ -141,9 +139,11 @@ public class InspectCodeIssueModel {
   }
 
   /**
-   * Gets the index position of the first character within the {@link #line} of the source code where the issue occurred.
+   * Gets the index position of the first character within the {@link #line} of the source code where the issue occurred. Negative values
+   * indicate an invalid index position.
    *
-   * @return The index position of the first character within the {@link #line} of the source code where the issue occurred.
+   * @return The index position of the first character within the {@link #line} of the source code where the issue occurred. Negative values
+   *     indicate an invalid index position.
    */
   public int getOffsetStart() {
     return offsetStart;
@@ -160,9 +160,11 @@ public class InspectCodeIssueModel {
   }
 
   /**
-   * Gets the index position of the last character within the {@link #line} of the source code where the issue occurred.
+   * Gets the index position of the last character within the {@link #line} of the source code where the issue occurred. Negative values
+   * indicate an invalid index position.
    *
-   * @return The index position of the last character within the {@link #line} of the source code where the issue occurred.
+   * @return The index position of the last character within the {@link #line} of the source code where the issue occurred. Negative values
+   *     indicate an invalid index position.
    */
   public int getOffsetEnd() {
     return offsetEnd;
@@ -179,9 +181,9 @@ public class InspectCodeIssueModel {
   }
 
   /**
-   * Gets the line within the source code file where the issue occurred.
+   * Gets the line within the source code file where the issue occurred. Negative values indicate an invalid line number.
    *
-   * @return The line within the source code file where the issue occurred.
+   * @return The line within the source code file where the issue occurred. Negative values indicate an invalid line number.
    */
   public int getLine() {
     return line;
@@ -195,6 +197,20 @@ public class InspectCodeIssueModel {
    */
   public void setLine(int line) {
     this.line = line;
+  }
+
+  /**
+   * Sets the line within the source code file where the issue occurred.
+   *
+   * @param lineValue
+   *     The line within the source code file where the issue occurred.
+   *
+   * @throws NumberFormatException
+   *     If the supplied {@code lineValue} could not be parsed to an integer value.
+   */
+  public void setLine(String lineValue)
+      throws NumberFormatException {
+    this.line = Integer.parseInt(lineValue, 10);
   }
 
   // region equals(), hashCode(), toString()
