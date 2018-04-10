@@ -18,6 +18,7 @@ package com.soloplan.oss.sonarqube.plugin.resharper.clt.predicates;
 
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.enumerations.InspectCodeIssueSeverity;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.InspectCodeIssueDefinitionModel;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.InspectCodeIssueModel;
 
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -85,5 +86,26 @@ public final class InspectCodePredicates {
     return inspectCodeIssueDefinitionModel ->
         inspectCodeIssueDefinitionModel.getCategory() != null
             && inspectCodeIssueDefinitionModel.getCategory().equalsIgnoreCase("JsStrictModeErrors");
+  }
+
+  /**
+   * Creates a new {@link Predicate} that can be used to keep all {@link InspectCodeIssueModel} instances where the index positions of the
+   * first and last character of the issue are valid.
+   *
+   * @return A {@link Predicate} that will allow all {@link InspectCodeIssueModel} instances where the index positions of the first and last
+   *     character of the issue are valid.
+   */
+  public static Predicate<InspectCodeIssueModel> hasValidIssueOffset() {
+    return inspectCodeIssueModel -> inspectCodeIssueModel.getOffsetStart() >= 0 && inspectCodeIssueModel.getOffsetEnd() > 0;
+  }
+
+  /**
+   * Creates a new {@link Predicate} that can be used to keep all {@link InspectCodeIssueModel} instances where the line number of the issue
+   * is valid.
+   *
+   * @return A {@link Predicate} that will allow all {@link InspectCodeIssueModel} instances where the line number of the issue is valid.
+   */
+  public static Predicate<InspectCodeIssueModel> isValidLineNumber() {
+    return inspectCodeIssueModel -> inspectCodeIssueModel.getLine() > 0;
   }
 }
