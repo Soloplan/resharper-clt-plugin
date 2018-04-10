@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  * An implementation of the {@link Converter} interface specific to instances of class {@link InspectCodeIssueDefinitionModel}, which will
  * be converted to instances of class {@link SonarQubeRuleDefinitionModel}.
  */
-public class InspectCodeIssueToSonarQubeRuleDefinitionConverter
+public class InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter
     implements Converter<InspectCodeIssueDefinitionModel, SonarQubeRuleDefinitionModel> {
 
   @Override
