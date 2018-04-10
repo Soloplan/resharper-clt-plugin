@@ -17,7 +17,8 @@
 package com.soloplan.oss.sonarqube.plugin.resharper.clt.rules;
 
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.configuration.ReSharperCltConfiguration;
-import com.soloplan.oss.sonarqube.plugin.resharper.clt.converters.InspectCodeIssueToSonarQubeRuleDefinitionConverter;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.converters.InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.converters.InspectCodeIssueToSonarQubeIssueConverter;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.languages.CSharpLanguage;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.SonarQubeRuleDefinitionModel;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.predicates.InspectCodePredicates;
@@ -183,13 +184,15 @@ public class CSharpRulesDefinition
   private Collection<SonarQubeRuleDefinitionModel> parseInspectCodeIssueDefinitions(@NotNull InputStream xmlFileInputStream) {
     // Create a new SAX parser implementation that will parse and convert the XML file of the InspectCode command line tool
     final InspectCodeXmlFileParser xmlFileParser = new InspectCodeXmlFileParser(
-        new InspectCodeIssueToSonarQubeRuleDefinitionConverter(),
+        new InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter(),
+        new InspectCodeIssueToSonarQubeIssueConverter(),
         Arrays.asList(
             ObjectPredicates.isNotNullPredicate(),
             InspectCodePredicates.hasValidIssueSeverity(),
             InspectCodePredicates.hasNonEmptyIssueDescription(),
             InspectCodePredicates.isCSharpIssueDefinition(),
-            InspectCodePredicates.isWebRelatedCategory().negate()));
+            InspectCodePredicates.isWebRelatedCategory().negate()),
+        Arrays.asList(x -> false)); // Rule definitions should not parse any actual issues
     try {
       final SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
       saxParser.parse(xmlFileInputStream, xmlFileParser);
