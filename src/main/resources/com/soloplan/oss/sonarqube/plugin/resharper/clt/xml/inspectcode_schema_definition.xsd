@@ -26,11 +26,12 @@
   <!-- Defines an XML element having the attribute 'ToolsVersion' and elements named 'Information', 'IssueTypes' -->
   <xs:complexType name="ReportType">
     <xs:sequence>
-      <!-- The top two elements are only present for report XML files -->
+      <!-- This element is only present for report XML files -->
       <xs:element name="Information" minOccurs="0" type="plugin:InformationType"/>
-      <xs:element name="Issues" minOccurs="0" type="plugin:IssuesType"/>
       <!-- This element is present for both, the issue definition dump and report XML files -->
       <xs:element name="IssueTypes" type="plugin:IssueTypeCollection"/>
+      <!-- This element is only present for report XML files -->
+      <xs:element name="Issues" minOccurs="0" type="plugin:IssuesType"/>
     </xs:sequence>
     <xs:attribute name="ToolsVersion" type="xs:string" use="required"/>
   </xs:complexType>
@@ -105,7 +106,7 @@
         <xs:attribute name="TypeId" type="xs:string" use="required"/>
         <xs:attribute name="File" type="xs:string" use="required"/>
         <xs:attribute name="Offset" type="xs:string" use="required"/>
-        <xs:attribute name="Line" type="xs:string"/> <!-- optional -->
+        <xs:attribute name="Line" type="xs:positiveInteger"/> <!-- optional -->
         <xs:attribute name="Message" type="xs:string" use="required"/>
       </xs:extension>
     </xs:simpleContent>
