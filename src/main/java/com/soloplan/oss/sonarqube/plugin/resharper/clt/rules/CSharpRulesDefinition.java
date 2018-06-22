@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * An implementation of the {@link RulesDefinition} interface which will create a new implementation of the {@link
@@ -192,7 +193,8 @@ public class CSharpRulesDefinition
             InspectCodePredicates.hasNonEmptyIssueDescription(),
             InspectCodePredicates.isCSharpIssueDefinition(),
             InspectCodePredicates.isWebRelatedCategory().negate()),
-        Arrays.asList(x -> false)); // Rule definitions should not parse any actual issues
+        Collections.singletonList(x -> false),  // Rule definitions should not parse any actual issues
+        Collections.singletonList(x -> false)); // Rule definitions should not parse any actual issues
     try {
       final SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
       saxParser.parse(xmlFileInputStream, xmlFileParser);
