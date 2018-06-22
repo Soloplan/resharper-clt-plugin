@@ -16,7 +16,11 @@
 
 package com.soloplan.oss.sonarqube.plugin.resharper.clt.configuration;
 
-public class ReSharperCltConfiguration {
+/**
+ * Utility class defining property identifiers used during the execution of the plugin in order to retrieve configuration values from the
+ * SonarQube runtime.
+ */
+public final class ReSharperCltConfiguration {
 
   public static final String PROPERTY_KEY_PROJECT_NAME = "resharper.clt.projectName";
   public static final String PROPERTY_KEY_SOLUTION_FILE = "resharper.clt.solutionFile";
@@ -32,11 +36,30 @@ public class ReSharperCltConfiguration {
   public static final String PROPERTY_KEY_CS_REPORT_PATH = "resharper.clt.cs.reportPath";
   public static final String PROPERTY_KEY_VBNET_REPORT_PATH = "resharper.clt.vbnet.reportPath";
 
+  /** SonarQube property containing the name of the project currently being processed. */
+  public static final String PROPERTY_KEY_SONAR_PROJECT_NAME = "sonar.projectName";
+
+  /**
+   * SonarQube property containing the current working directory of the SonarScanner for MSBuild (i.e. the directory from where the
+   * SonarScanner executable has been called).
+   */
+  public static final String PROPERTY_KEY_USER_DIRECTORY = "user.dir";
+
   /**
    * This property defines a {@code boolean} value, indicating whether any resulting XML file of the {@code InspectCode} command line tool
    * should be validated using the XML Schema Definition file included with this plugin.
    */
   public static final String PROPERTY_KEY_ENABLE_XML_SCHEMA_VALIDATION = "resharper.clt.xsd.validation";
+
+  // region Private constructor to prevent instances of this class
+
+  /**
+   * Private constructor of the utility class {@link ReSharperCltConfiguration} in order to prevent the creation of instances.
+   */
+  private ReSharperCltConfiguration() {
+  }
+
+  // endregion
 
   //region Definitions for supported rule repositories
 
