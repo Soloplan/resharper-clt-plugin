@@ -48,7 +48,7 @@ public final class InspectCodeXmlFileValidator {
    * The value of this literal should correspond to {@code /com/soloplan/oss/sonarqube/plugin/resharper/clt/xml}.
    */
   private static final String RESOURCE_URN_BASE =
-      "/" + InspectCodeXmlFileValidator.class.getPackageName().replaceAll("\\.", "/");
+      "/" + InspectCodeXmlFileValidator.class.getPackage().getName().replaceAll("\\.", "/");
 
   /**
    * Defines the full path within the resources of the JAR file where the XML Schema Definition (XSD) file is located, including its file
@@ -76,6 +76,12 @@ public final class InspectCodeXmlFileValidator {
    * @see Logger
    */
   private static final Logger LOGGER = Loggers.get(InspectCodeXmlFileValidator.class);
+
+  /**
+   * Class-private constructor to prevent accidental instantiating of the class.
+   */
+  private InspectCodeXmlFileValidator() {
+  }
 
   /**
    * Validates the supplied input stream against the XML Schema Definition for output files of the {@code InspectCode} command line tool.
