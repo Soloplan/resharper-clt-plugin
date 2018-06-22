@@ -217,6 +217,16 @@ public class InspectCodeXmlFileParser
   @NotNull
   private final Predicate<InspectCodeIssueModel> validInspectCodeIssuePredicate;
 
+  /** A {@link Predicate} used to check if the XML elements of the {@value ELEMENT_NAME_PROJECT} node should be parsed or ignored. */
+  @NotNull
+  private final Predicate<String> validProjectNamesPredicate;
+
+  /**
+   * An indication if all XML elements within the {@value ELEMENT_NAME_PROJECT} node should be ignored due to not matching the {@link
+   * #validProjectNamesPredicate}.
+   */
+  private boolean doSkipProjectElement = false;
+
   /** The {@link InspectCodeIssueDefinitionModel} that is currently being parsed by the SAX parser implementation. */
   private InspectCodeIssueDefinitionModel currentIssueDefinition = null;
 
@@ -250,12 +260,17 @@ public class InspectCodeXmlFileParser
    *     A {@link Collection} of {@link Predicate}s that are combined using a logical {@code and} and will be used to decide whether the
    *     parsed InspectCode issues are valid and should be added to the resulting collection. Might be {@code null} if no filter predicate
    *     should be applied.
+   * @param projectNamePredicateCollection
+   *     A {@link Collection} of {@link Predicate}s that are combined using a logical {@code and} and will be used to decide whether the
+   *     children of the {@value ELEMENT_NAME_PROJECT} XML node should be parsed or completely ignored. Ignoring certain XML nodes which are
+   *     not required will speed up parsing and need less memory.
    */
   public InspectCodeXmlFileParser(
       @NotNull Converter<InspectCodeIssueDefinitionModel, SonarQubeRuleDefinitionModel> ruleDefinitionConverter,
       @NotNull Converter<InspectCodeIssueModel, SonarQubeIssueModel> issueModelConverter,
       @Nullable Collection<Predicate<InspectCodeIssueDefinitionModel>> ruleDefinitionFilterPredicateCollection,
-      @Nullable Collection<Predicate<InspectCodeIssueModel>> issueFilterPredicateCollection) {
+      @Nullable Collection<Predicate<InspectCodeIssueModel>> issueFilterPredicateCollection,
+      @Nullable Collection<Predicate<String>> projectNamePredicateCollection) {
     // Store a reference to the supplied converter implementations
     this.sonarQubeRuleDefinitionConverter = ruleDefinitionConverter;
     this.sonarQubeIssueConverter = issueModelConverter;
@@ -263,6 +278,7 @@ public class InspectCodeXmlFileParser
     // Combine all supplied filter predicates
     this.validInspectCodeIssueDefinitionPredicate = this.combinePredicates(ruleDefinitionFilterPredicateCollection);
     this.validInspectCodeIssuePredicate = this.combinePredicates(issueFilterPredicateCollection);
+    this.validProjectNamesPredicate = this.combinePredicates(projectNamePredicateCollection);
   }
 
   @NotNull
@@ -273,13 +289,13 @@ public class InspectCodeXmlFileParser
 
   @Override
   public @NotNull Collection<SonarQubeIssueModel> getIssues() {
-    // NOTE THIS IS DEBUG CODE AND SHOULD NOT BE PUBLISHED!
     // Concatenate all issue collections for each project
     Stream<InspectCodeIssueModel> stream = Stream.of();
     for (Collection<InspectCodeIssueModel> issueCollection : this.parsedIssuesMap.values()) {
       stream = Stream.concat(stream, issueCollection.stream());
     }
 
+    // Collect and convert the results of the stream to instances of the required class
     return this.sonarQubeIssueConverter.convert(stream.collect(Collectors.toList()));
   }
 
@@ -309,14 +325,28 @@ public class InspectCodeXmlFileParser
       // Remove any leading or trailing whitespace characters from the qualified name
       qualifiedName = qualifiedName.trim();
 
+      // Check if all elements except the 'Project' node should be skipped
+      if (this.doSkipProjectElement && !ELEMENT_NAME_PROJECT.equals(qualifiedName)) {
+        return;
+      }
+
       switch (qualifiedName) {
         case ELEMENT_NAME_ISSUETYPE:
           this.currentIssueDefinition = this.parseXmlElementIssueType(attributes);
           break;
         case ELEMENT_NAME_PROJECT:
+          // Retrieve the name of the project from the current XML 'Project' node
+          final String parsedProjectName = attributes.getValue(ATTRIBUTE_NAME_NAME).trim();
+
+          // Evaluate if the project should be skipped and store the result (will be reset at the end of the 'Project' node)
+          this.doSkipProjectElement = !this.validProjectNamesPredicate.test(parsedProjectName);
+          if (this.doSkipProjectElement) {
+            return;
+          }
+
           // Create a new collection of InspectCodeIssueModel instances and store it within the resulting map
           this.currentIssuesCollection = new ArrayList<>(32);
-          this.parsedIssuesMap.put(attributes.getValue(ATTRIBUTE_NAME_NAME), this.currentIssuesCollection);
+          this.parsedIssuesMap.put(parsedProjectName, this.currentIssuesCollection);
           break;
         case ELEMENT_NAME_ISSUE:
           this.currentIssue = this.parseXmlElementIssue(attributes);
@@ -338,6 +368,11 @@ public class InspectCodeXmlFileParser
       // Remove any leading or trailing whitespace characters from the qualified name
       qualifiedName = qualifiedName.trim();
 
+      // Check if all elements except for the 'Project' node should be skipped
+      if (this.doSkipProjectElement && !ELEMENT_NAME_PROJECT.equals(qualifiedName)) {
+        return;
+      }
+
       switch (qualifiedName) {
         case ELEMENT_NAME_ISSUETYPE:
           // Check if the parsed issue definition matches all predicates
@@ -349,8 +384,9 @@ public class InspectCodeXmlFileParser
           this.currentIssueDefinition = null;
           break;
         case ELEMENT_NAME_PROJECT:
-          // Reset the internal variable
+          // Reset the internal variables
           this.currentIssuesCollection = null;
+          this.doSkipProjectElement = false;
           break;
         case ELEMENT_NAME_ISSUE:
           // Check if the parsed issue matches all predicates
@@ -392,12 +428,8 @@ public class InspectCodeXmlFileParser
   @Override
   public String toString() {
     return "InspectCodeXmlFileParser{" +
-        "sonarQubeRuleDefinitionConverter=" + sonarQubeRuleDefinitionConverter +
-        ", sonarQubeIssueConverter=" + sonarQubeIssueConverter +
-        ", parsedIssueDefinitions=" + parsedIssueDefinitions +
-        ", parsedIssuesMap=" + parsedIssuesMap +
-        ", validInspectCodeIssueDefinitionPredicate=" + validInspectCodeIssueDefinitionPredicate +
-        ", validInspectCodeIssuePredicate=" + validInspectCodeIssuePredicate +
+        "parsedIssueDefinitions[" + parsedIssueDefinitions.size() + "]" +
+        ", parsedIssuesMap[" + parsedIssuesMap.size() + "]" +
         ", currentIssueDefinition=" + currentIssueDefinition +
         ", currentIssue=" + currentIssue +
         ", currentIssuesCollection=" + currentIssuesCollection +
@@ -484,7 +516,7 @@ public class InspectCodeXmlFileParser
       }
 
       // Return the combined filter predicate
-      return matchAllPredicate;
+      return matchAllPredicate != null ? matchAllPredicate : item -> false;
     }
   }
 
