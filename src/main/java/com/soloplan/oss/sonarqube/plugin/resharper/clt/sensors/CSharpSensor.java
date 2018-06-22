@@ -26,6 +26,7 @@ import com.soloplan.oss.sonarqube.plugin.resharper.clt.predicates.InspectCodePre
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.predicates.ObjectPredicates;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.xml.InspectCodeXmlFileParser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -46,7 +47,11 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class CSharpSensor
@@ -99,36 +104,37 @@ public class CSharpSensor
       return;
     }
 
-    // TODO: Restrict parsing to a single project?
-
-    // Create a new SAX parser implementation that will parse and convert the XML file of the InspectCode command line tool
-    final InspectCodeXmlFileParser xmlFileParser = new InspectCodeXmlFileParser(
-        new InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter(),
-        new InspectCodeIssueToSonarQubeIssueConverter(),
-        Arrays.asList(
-            ObjectPredicates.isNotNullPredicate(),
-            InspectCodePredicates.hasNonEmptyIssueDescription()),
-        Arrays.asList(
-            ObjectPredicates.isNotNullPredicate(),
-            InspectCodePredicates.hasValidIssueOffset(),
-            InspectCodePredicates.isValidLineNumber()));
-
-    try (FileInputStream reportFileInputStream = new FileInputStream(inspectCodeReportFile)) {
-      try {
-        final SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-        saxParser.parse(reportFileInputStream, xmlFileParser);
-      } catch (ParserConfigurationException | SAXException | IOException exception) {
-        LOGGER.error(
-            "An exception occurred while trying to parse the data stream of the report XML file " + inspectCodeReportFile + ".",
-            exception);
-      }
-    } catch (IOException ioe) {
-      LOGGER.error("Could not open file " + inspectCodeReportFile + " for parsing.", ioe);
+    // Retrieve and validate all mandatory properties from the SonarQube configuration
+    final SonarQubeSensorProperties sonarQubeProperties = new SonarQubeSensorProperties(context.config());
+    if (!sonarQubeProperties.validatePropertyValues(LOGGER)) {
+      LOGGER.warn("Not all mandatory properties are set, skipping issue parsing for the current project.");
       return;
     }
 
-    // Retrieve the issue type definition identifiers from the InspectCode xml file, which are used as rule keys
-    final Set<String> occurredIssueDefinitions = xmlFileParser.getRuleDefinitions()
+    // Create a predicate to match the project name for the issues
+    final Predicate<String> projectNamePredicate =
+        element -> element != null && element.trim().equalsIgnoreCase(sonarQubeProperties.projectName);
+
+    // Parse and convert the XML file of the InspectCode command line tool
+    final SonarQubeSensorXmlParserResults sonarQubeSensorXmlParserResults =
+        this.parseInspectCodeXmlReportFile(inspectCodeReportFile, projectNamePredicate);
+
+    // If null is returned, an error has occurred during parsing, hence abort the creation of issues for this project
+    if (sonarQubeSensorXmlParserResults == null) {
+      LOGGER.info("An error occurred during parsing of InspectCode XML file '{}'. Aborting scan for project '{}'.",
+          inspectCodeReportFile.getAbsolutePath(),
+          sonarQubeProperties.projectName);
+      return;
+    }
+
+    // Retrieve a collection of all issued found by InspectCode for the current project
+    if (sonarQubeSensorXmlParserResults.parsedIssues.isEmpty()) {
+      LOGGER.debug("No issues have been parsed for project {}. Skipping project...", sonarQubeProperties.projectName);
+      return;
+    }
+
+    // Retrieve the issue type definition identifiers from the parsed InspectCode XML file, which are used as rule keys
+    final Set<String> occurredIssueDefinitions = sonarQubeSensorXmlParserResults.ruleDefinitions
         .parallelStream()
         .map(SonarQubeRuleDefinitionModel::getRuleDefinitionKey)
         .collect(Collectors.toSet());
@@ -140,27 +146,36 @@ public class CSharpSensor
             .filter(activeRule -> occurredIssueDefinitions.contains(activeRule.ruleKey().rule()))
             .collect(Collectors.toMap(activeRule -> activeRule.ruleKey().rule(), ActiveRule::ruleKey));
 
-    // TODO: Use configuration property ReSharperCltConfiguration.PROPERTY_KEY_SOLUTION_FILE to retrieve the solution directory
+    // TODO: Create method to get the relative base directory of the InspectCode executable
+    //       It might be necessary to check whether the solution file name stored within the SonarQube properties is relative or absolute.
+    //       Additionally, the XML file generated by InspectCode contains a path to the solution file, too. But the latter is always
+    //       stored relative to the directory where the InspectCode executable has been run.
 
-    // Retrieve the path to the XML output file of the InspectCode command line tool from the configuration and try to access the file
-    // Retrieve the base directory where the C# solution file is located
-    final String baseDirectoryPath = this.getBaseDirectory(context);
+    // Build the absolute path to the solution file
+    final File solutionFile = new File(sonarQubeProperties.userDir + File.separator + sonarQubeProperties.solutionFileName);
+    final String inspectCodeRelativeBaseDir = solutionFile.getParent() + File.separator;
 
-    // Iterate all issues found within the InspectCode report XML file
-    for (SonarQubeIssueModel sonarQubeIssueModel : xmlFileParser.getIssues()) {
+    // Iterate all issues found within the InspectCode report XML file matching the project name predicate
+    for (SonarQubeIssueModel sonarQubeIssueModel : sonarQubeSensorXmlParserResults.parsedIssues) {
+      // Skip this issue if its rule definition is not activated in the quality profile of this project
       if (!ruleKeyMap.containsKey(sonarQubeIssueModel.getRuleKey())) {
-        LOGGER.warn(
-            "Could not find rule definition identifier {} within the set of active SonarQube rules.",
+        final String reason = String.format(
+            "Could not find rule definition identifier %s within the set of active SonarQube rules.",
             sonarQubeIssueModel.getRuleKey());
-        this.logSkippedIssue(sonarQubeIssueModel);
+        this.logSkippedIssue(sonarQubeIssueModel, reason);
         continue;
       }
 
-      InputFile sourceCodeFile = fileSystem.inputFile(
-          fileSystem.predicates().hasPath(baseDirectoryPath + sonarQubeIssueModel.getFilePath()));
+      // Construct an absolute path from the filesystem root to the source file where the issue occurred,
+      // relative to the path where the solution file is located.
+      final String absoluteFilePath = inspectCodeRelativeBaseDir + sonarQubeIssueModel.getFilePath();
+
+      final InputFile sourceCodeFile = fileSystem.inputFile(fileSystem.predicates().hasPath(absoluteFilePath));
       if (sourceCodeFile == null || !sourceCodeFile.isFile()) {
-        LOGGER.warn("Could not find source code file {} using the SonarQube FileSystem API.", sonarQubeIssueModel.getFilePath());
-        this.logSkippedIssue(sonarQubeIssueModel);
+        final String reason = String.format(
+            "Could not find source code file %s using the SonarQube FileSystem API.",
+            absoluteFilePath);
+        this.logSkippedIssue(sonarQubeIssueModel, reason);
         continue;
       }
 
@@ -228,73 +243,101 @@ public class CSharpSensor
   }
 
   /**
-   * Retrieves the path to the solution file via configuration property {@value ReSharperCltConfiguration#PROPERTY_KEY_SOLUTION_FILE} and
-   * tries to verify that the solution file referenced by the property does exist. Otherwise a warning message is logged and the path of the
-   * base directory is returned.
-   *
-   * @param context
-   *     An implementation of the {@link SensorContext} used to access the plugin configuration in order to retrieve the value of property
-   *     {@value ReSharperCltConfiguration#PROPERTY_KEY_SOLUTION_FILE}.
-   *
-   * @return The absolute path to the base directory where the solution file is located.
-   */
-  @NotNull
-  private String getBaseDirectory(@NotNull final SensorContext context) {
-    // Helper variables
-    final FileSystem fileSystem = context.fileSystem();
-    final String baseDirectoryPath;
-
-    // Check if the configuration property value has a non-default value
-    if (!context.config().hasKey(ReSharperCltConfiguration.PROPERTY_KEY_SOLUTION_FILE)) {
-      LOGGER.info(
-          "Property {} is not defined, using default value to locate the solution file.",
-          ReSharperCltConfiguration.PROPERTY_KEY_SOLUTION_FILE);
-      // Set the helper variable to null
-      baseDirectoryPath = null;
-    } else {
-      // Retrieve the configuration property value that refers to the solution file
-      final Optional<String> configPath = context.config().get(ReSharperCltConfiguration.PROPERTY_KEY_SOLUTION_FILE);
-
-      // Check if the configuration property value is set
-      if (configPath.isPresent()) {
-        // Try to find a corresponding file using the FileSystem API
-        final File file = fileSystem.resolvePath(configPath.get());
-        if (file == null || !file.exists()) {
-          LOGGER.warn(
-              "Could not locate solution file at {}. Using default value to locate the solution file.",
-              configPath.get());
-          // Set the helper variable to null
-          baseDirectoryPath = null;
-        } else {
-          // Retrieve the base directory where the solution is located
-          baseDirectoryPath = (file.isFile() ? file.getParent() : file.getAbsolutePath() + File.separator);
-        }
-      } else {
-        LOGGER.warn(
-            "Property {} is defined, but its value is null. Using default value to locate the solution file.",
-            ReSharperCltConfiguration.PROPERTY_KEY_SOLUTION_FILE);
-        // Set the helper variable to null
-        baseDirectoryPath = null;
-      }
-    }
-
-    // Check if the configuration property did not provide a valid path to the solution file and return the default value
-    return baseDirectoryPath != null ? baseDirectoryPath : fileSystem.baseDir().getParentFile() + File.separator;
-  }
-
-  /**
    * Logs a message that the supplied {@code sonarQubeIssueModel} has been skipped using the class-private {@link #LOGGER}.
    *
    * @param sonarQubeIssueModel
    *     The issue that has been skipped.
+   * @param reason
+   *     The reason why this issue has been skipped. Might be {@code null} if no reason should be logged.
    */
-  private void logSkippedIssue(@NotNull final SonarQubeIssueModel sonarQubeIssueModel) {
-    LOGGER.info(
-        "Skipping issue for rule {}, which occurred at line {} in range {}-{} of file {}.",
-        sonarQubeIssueModel.getRuleKey(),
-        sonarQubeIssueModel.getTextRange().start().line(),
-        sonarQubeIssueModel.getTextRange().start().lineOffset(),
-        sonarQubeIssueModel.getTextRange().end().lineOffset(),
-        sonarQubeIssueModel.getFilePath());
+  private void logSkippedIssue(@NotNull final SonarQubeIssueModel sonarQubeIssueModel, @Nullable String reason) {
+    // Sanitize the supplied reason
+    reason = reason != null ? reason.trim() : "";
+
+    // Helper variable
+    final TextRange textRange = sonarQubeIssueModel.getTextRange();
+
+    // Build the log message from the supplied arguments
+    final StringBuilder sb = new StringBuilder(128)
+        .append("Skipping issue for rule ")
+        .append(sonarQubeIssueModel.getRuleKey())
+        .append(", which occurred at line ")
+        .append(textRange.start().line())
+        .append(" in range ")
+        .append(textRange.start().lineOffset())
+        .append("-")
+        .append(textRange.end().lineOffset())
+        .append("of file ")
+        .append(sonarQubeIssueModel.getFilePath())
+        .append(".");
+    if (!reason.isEmpty()) {
+      sb.append("Reason: ").append(reason).append(".");
+    }
+
+    LOGGER.info(sb.toString());
+  }
+
+  /**
+   * Creates a new instance of the {@link InspectCodeXmlFileParser} class and parses the XML report file generated by the InspectCode
+   * command line tool referenced by the supplied {@code inspectCodeXmlReportFile}. If {@code projectNamePredicate} is not {@code null},
+   * only issues found for projects matching the {@link Predicate} are parsed otherwise all issues defined within the XML report file are
+   * parsed and returned. If the result of this method is {@code null}, an error occurred during parsing (which has been logged using the
+   * {@link #LOGGER}).
+   *
+   * @param inspectCodeXmlReportFile
+   *     A reference to the XML report file generated by the InspectCode command line tool to be parsed.
+   * @param projectNamePredicate
+   *     If set to {@code null}, all issues for all projects contained within the supplied InspectCode XML file are parsed. Otherwise, only
+   *     issues for projects where the name matches the supplied {@link Predicate} will be parsed and returned by this method.
+   *
+   * @return An instance of the {@link SonarQubeSensorXmlParserResults} class, containing a {@link Collection} of all issues parsed from the
+   *     supplied {@code inspectCodeXmlReportFile} where the project name matches the supplied {@code projectNamePredicate} and another
+   *     Collection containing all SonarQube rule definitions of the issues found in the XML report file. If an error occurred during
+   *     parsing of the XML report file, {@code null} is returned.
+   */
+  @Nullable
+  private SonarQubeSensorXmlParserResults parseInspectCodeXmlReportFile(
+      @NotNull final File inspectCodeXmlReportFile,
+      @Nullable Predicate<String> projectNamePredicate) {
+
+    // Sanitize the supplied predicate, so it is never null
+    projectNamePredicate = projectNamePredicate != null ? projectNamePredicate : x -> !x.isEmpty();
+
+    // Create a new SAX parser implementation that will parse and convert the XML file of the InspectCode command line tool
+    final InspectCodeXmlFileParser xmlFileParser = new InspectCodeXmlFileParser(
+        new InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter(),
+        new InspectCodeIssueToSonarQubeIssueConverter(),
+        Arrays.asList(
+            ObjectPredicates.isNotNullPredicate(),
+            InspectCodePredicates.hasNonEmptyIssueDescription()),
+        Arrays.asList(
+            ObjectPredicates.isNotNullPredicate(),
+            InspectCodePredicates.hasValidIssueOffset(),
+            InspectCodePredicates.isValidLineNumber()),
+        Arrays.asList(
+            ObjectPredicates.isNotNullPredicate(),
+            projectNamePredicate));
+
+    // Use 'try-with-resource' to automatically close the input stream on error or finish
+    try (FileInputStream reportFileInputStream = new FileInputStream(inspectCodeXmlReportFile)) {
+      try {
+        // Parse the input stream using the xmlFileParser created above which will store the results
+        final SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+        saxParser.parse(reportFileInputStream, xmlFileParser);
+      } catch (ParserConfigurationException | SAXException | IOException exception) {
+        LOGGER.error(
+            "An exception occurred while trying to parse the data stream of the report XML file " + inspectCodeXmlReportFile + ".",
+            exception);
+      }
+    } catch (IOException ioe) {
+      LOGGER.error("Could not open file " + inspectCodeXmlReportFile + " for parsing.", ioe);
+      return null;
+    }
+
+    // Return a new instance of the resulting class which contains the items parsed from the InspectCode XML report file
+    return new SonarQubeSensorXmlParserResults(
+        xmlFileParser.getIssues(),
+        xmlFileParser.getRuleDefinitions()
+    );
   }
 }
