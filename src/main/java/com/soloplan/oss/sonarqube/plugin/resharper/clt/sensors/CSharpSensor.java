@@ -38,6 +38,7 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 import org.xml.sax.SAXException;
 
@@ -121,7 +122,7 @@ public class CSharpSensor
 
     // If null is returned, an error has occurred during parsing, hence abort the creation of issues for this project
     if (sonarQubeSensorXmlParserResults == null) {
-      LOGGER.info("An error occurred during parsing of InspectCode XML file '{}'. Aborting scan for project '{}'.",
+      LOGGER.warn("An error occurred during parsing of InspectCode XML file '{}'. Aborting scan for project '{}'.",
           inspectCodeReportFile.getAbsolutePath(),
           sonarQubeProperties.projectName);
       return;
@@ -162,7 +163,7 @@ public class CSharpSensor
         final String reason = String.format(
             "Could not find rule definition identifier %s within the set of active SonarQube rules.",
             sonarQubeIssueModel.getRuleKey());
-        this.logSkippedIssue(sonarQubeIssueModel, reason);
+        this.logSkippedIssue(sonarQubeIssueModel, reason, LoggerLevel.DEBUG);
         continue;
       }
 
@@ -243,7 +244,10 @@ public class CSharpSensor
   }
 
   /**
-   * Logs a message that the supplied {@code sonarQubeIssueModel} has been skipped using the class-private {@link #LOGGER}.
+   * Logs a message that the supplied {@code sonarQubeIssueModel} has been skipped using the class-private {@link #LOGGER}. Calls {@link
+   * #logSkippedIssue(SonarQubeIssueModel, String, LoggerLevel)} internally, supplying {@link LoggerLevel#INFO} as value, which is the
+   * least-concerning severity to include during logging by default. Levels {@link LoggerLevel#DEBUG} and {@link LoggerLevel#TRACE} can be
+   * enabled on demand with the property {@code sonar.log.level}.
    *
    * @param sonarQubeIssueModel
    *     The issue that has been skipped.
@@ -251,6 +255,22 @@ public class CSharpSensor
    *     The reason why this issue has been skipped. Might be {@code null} if no reason should be logged.
    */
   private void logSkippedIssue(@NotNull final SonarQubeIssueModel sonarQubeIssueModel, @Nullable String reason) {
+    this.logSkippedIssue(sonarQubeIssueModel, reason, LoggerLevel.INFO);
+  }
+
+  /**
+   * Logs a message that the supplied {@code sonarQubeIssueModel} has been skipped using the class-private {@link #LOGGER} and the supplied
+   * {@code logLevel}.
+   *
+   * @param sonarQubeIssueModel
+   *     The issue that has been skipped.
+   * @param reason
+   *     The reason why this issue has been skipped. Might be {@code null} if no reason should be logged.
+   * @param logLevel
+   *     Indicates the severity of the log entry which is used during logging.
+   */
+  private void logSkippedIssue(@NotNull final SonarQubeIssueModel sonarQubeIssueModel, @Nullable String reason,
+                               @NotNull final LoggerLevel logLevel) {
     // Sanitize the supplied reason
     reason = reason != null ? reason.trim() : "";
 
@@ -267,14 +287,38 @@ public class CSharpSensor
         .append(textRange.start().lineOffset())
         .append("-")
         .append(textRange.end().lineOffset())
-        .append("of file ")
+        .append(" of file ")
         .append(sonarQubeIssueModel.getFilePath())
         .append(".");
     if (!reason.isEmpty()) {
-      sb.append("Reason: ").append(reason).append(".");
+      sb.append(" Reason: ").append(reason);
+      if (!reason.endsWith(".")) {
+        sb.append(".");
+      }
     }
 
-    LOGGER.info(sb.toString());
+    // Log the message using the supplied log level
+    //noinspection ConstantConditions
+    switch (logLevel == null ? LoggerLevel.INFO : logLevel) {
+      case TRACE:
+        LOGGER.trace(sb.toString());
+        break;
+      case DEBUG:
+        LOGGER.debug(sb.toString());
+        break;
+      case INFO:
+        LOGGER.info(sb.toString());
+        break;
+      case WARN:
+        LOGGER.warn(sb.toString());
+        break;
+      case ERROR:
+        LOGGER.error(sb.toString());
+        break;
+      default:
+        LOGGER.info(sb.toString());
+        break;
+    }
   }
 
   /**
