@@ -49,7 +49,7 @@ public class InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter
     // Create a new instance of the SonarQubeRuleDefinitionModel class and fill in the values of the supplied InspectCode issue definition
     final SonarQubeRuleDefinitionModel ruleDefinitionModel =
         new SonarQubeRuleDefinitionModel(inspectCodeIssueDefinitionModel.getIssueTypeId());
-    ruleDefinitionModel.setRuleName(inspectCodeIssueDefinitionModel.getIssueTypeId());
+    ruleDefinitionModel.setRuleName(inspectCodeIssueDefinitionModel.getDescription());
     ruleDefinitionModel.setActivatedByDefault(false);
     ruleDefinitionModel.setRuleDescription(
         combineRuleDescription(inspectCodeIssueDefinitionModel.getDescription(), inspectCodeIssueDefinitionModel.getWikiUrl()),
