@@ -81,12 +81,64 @@ public class CSharpRulesDefinition
         context.createRepository(ReSharperCltConfiguration.RULES_REPOSITORY_CSHARP_KEY, CSharpLanguage.LANGUAGE_NAME)
             .setName(ReSharperCltConfiguration.RULES_REPOSITORY_CSHARP_NAME);
 
-    // Declare the input stream upfront instead of using try-with-resource, because we might need to wrap it
-    InputStream inputStream = null;
-    try {
-      // NOTE: Should be replaced by something more configurable
-      final String resourceName = "/com/jetbrains/resharper/inspectcode/inspectcode_2017-3-3.xml";
+    // Read SonarQube rule definitions from issue definitions contained in InspectCode XML file
+    final Collection<SonarQubeRuleDefinitionModel> sonarQubeRuleDefinitions =
+        this.getSonarQubeRuleDefinitionsFromInspectCodeFile();
 
+    // Check if at least a single rule definition has been found
+    if (!sonarQubeRuleDefinitions.isEmpty()) {
+
+      // TODO: Parse SonarOverride file and apply its values to the SonarQubeRuleDefinitionModels before using them
+
+      // Create a new SonarQube rule for each defined issue type
+      for (SonarQubeRuleDefinitionModel sonarQubeRuleDefinitionModel : sonarQubeRuleDefinitions) {
+        NewRule newRule = csharpRulesRepository
+            .createRule(sonarQubeRuleDefinitionModel.getRuleDefinitionKey())
+            .setName(sonarQubeRuleDefinitionModel.getRuleName())
+            .setSeverity(sonarQubeRuleDefinitionModel.getSonarQubeSeverity().getSonarQubeSeverityValue())
+            .setType(sonarQubeRuleDefinitionModel.getRuleType())
+            .setStatus(sonarQubeRuleDefinitionModel.getRuleStatus())
+            .setActivatedByDefault(sonarQubeRuleDefinitionModel.isActivatedByDefault());
+
+        // Set description using corresponding method
+        switch (sonarQubeRuleDefinitionModel.getRuleDescriptionSyntax()) {
+          case MARKDOWN:
+            newRule.setMarkdownDescription(sonarQubeRuleDefinitionModel.getRuleDescription());
+            break;
+          case HTML:
+          default:
+            newRule.setHtmlDescription(sonarQubeRuleDefinitionModel.getRuleDescription());
+            break;
+        }
+
+        // TODO Create actual debt remediation functions
+        newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().constantPerIssue("15 min"));
+      }
+    }
+
+    // Finish working with the newly created repository
+    csharpRulesRepository.done();
+  }
+
+  /**
+   * Retrieves a collection of {@link SonarQubeRuleDefinitionModel} instances from the {@code InspectCode} issue definition file which is
+   * contained within the resources of the plugin.
+   *
+   * @return A collection of {@link SonarQubeRuleDefinitionModel} instances parsed from the {@code InspectCode} issue definition file
+   *     located in the plugin's resources.
+   */
+  @NotNull
+  private Collection<SonarQubeRuleDefinitionModel> getSonarQubeRuleDefinitionsFromInspectCodeFile() {
+    // NOTE: Should be replaced by something more configurable
+    final String resourceName = "/com/jetbrains/resharper/inspectcode/inspectcode_2017-3-3.xml";
+
+    // Initialize the resulting variable so it won't be null
+    Collection<SonarQubeRuleDefinitionModel> parsedRuleDefinitions = Collections.emptyList();
+
+    // Declare the input stream upfront instead of using try-with-resource, because we might need to wrap it for schema validation
+    InputStream inputStream = null;
+    //noinspection TryFinallyCanBeTryWithResources (See comment line above)
+    try {
       // Retrieve the XML file resource to parse
       inputStream = this.getClass().getResourceAsStream(resourceName);
 
@@ -98,63 +150,12 @@ public class CSharpRulesDefinition
             ? this.configuration.getBoolean(ReSharperCltConfiguration.PROPERTY_KEY_ENABLE_XML_SCHEMA_VALIDATION).orElse(false)
             : false;
 
-        // Helper variable
-        final boolean success;
-
-        if (doValidateFile) {
-          // Wrap the resource into a BufferedInputStream because we will reset it later on
-          inputStream = new BufferedInputStream(inputStream);
-          if (inputStream.markSupported()) {
-            inputStream.mark(Integer.MAX_VALUE);
-          }
-          // TODO Validate XML file without updating it: https://stackoverflow.com/questions/2991091/java-xsd-validation-of-xml-without-namespace
-          success = InspectCodeXmlFileValidator.validateXmlFile(inputStream);
-        } else {
-          success = true;
-        }
-
-        if (!success) {
+        // Start XML schema validation only if enabled, otherwise assume the file is valid
+        if (doValidateFile && !this.validateInspectCodeIssueDefinitionFile(inputStream)) {
           LOGGER.error("Verification of XML file using the internal XML Schema Definition has failed.");
         } else {
-          try {
-            // Reset the input stream to its original position if the XML file has been validated
-            if (inputStream.markSupported() && doValidateFile) {
-              inputStream.reset();
-            }
-
-            // Parse XML file containing all declared inspect code issues
-            final Collection<SonarQubeRuleDefinitionModel> parsedInspectCodeIssueDefinitions =
-                this.parseInspectCodeIssueDefinitions(inputStream);
-
-            if (!parsedInspectCodeIssueDefinitions.isEmpty()) {
-              // Create a new SonarQube rule for each defined issue type
-              for (SonarQubeRuleDefinitionModel sonarQubeRuleDefinitionModel : parsedInspectCodeIssueDefinitions) {
-                NewRule newRule = csharpRulesRepository
-                    .createRule(sonarQubeRuleDefinitionModel.getRuleDefinitionKey())
-                    .setName(sonarQubeRuleDefinitionModel.getRuleName())
-                    .setSeverity(sonarQubeRuleDefinitionModel.getSonarQubeSeverity().getSonarQubeSeverityValue())
-                    .setType(sonarQubeRuleDefinitionModel.getRuleType())
-                    .setStatus(sonarQubeRuleDefinitionModel.getRuleStatus())
-                    .setActivatedByDefault(sonarQubeRuleDefinitionModel.isActivatedByDefault());
-
-                // Set description using corresponding method
-                switch (sonarQubeRuleDefinitionModel.getRuleDescriptionSyntax()) {
-                  default:
-                  case HTML:
-                    newRule.setHtmlDescription(sonarQubeRuleDefinitionModel.getRuleDescription());
-                    break;
-                  case MARKDOWN:
-                    newRule.setMarkdownDescription(sonarQubeRuleDefinitionModel.getRuleDescription());
-                    break;
-                }
-
-                // TODO Create actual debt remediation functions
-                newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().constantPerIssue("15 min"));
-              }
-            }
-          } catch (IOException e) {
-            LOGGER.error("An exception occurred while trying to parse the data stream of the XML file.", e);
-          }
+          // Parse XML file containing all declared inspect code issues
+          parsedRuleDefinitions = this.parseInspectCodeIssueDefinitions(inputStream);
         }
       }
     } catch (Exception e) {
@@ -168,8 +169,7 @@ public class CSharpRulesDefinition
       }
     }
 
-    // Finish working with the newly created repository
-    csharpRulesRepository.done();
+    return parsedRuleDefinitions;
   }
 
   /**
@@ -201,7 +201,43 @@ public class CSharpRulesDefinition
     } catch (ParserConfigurationException | SAXException | IOException e) {
       LOGGER.error("An exception occurred while trying to parse the data stream of the XML file.", e);
     }
-
     return xmlFileParser.getRuleDefinitions();
+  }
+
+  /**
+   * Validates the content of the {@code InspectCode} issue definition file using an XML schema definition.
+   *
+   * @param xmlFileInputStream
+   *     The {@link InputStream} of the {@code InspectCode} issue definition file.
+   *
+   * @return {@code True} if the validation of the {@code InspectCode} issue definition file using an XML schema succeeded; otherwise {@code
+   *     false}.
+   */
+  private boolean validateInspectCodeIssueDefinitionFile(@NotNull final InputStream xmlFileInputStream) {
+    // Result variable
+    boolean success;
+
+    // Wrap the resource into a BufferedInputStream because we will reset it later on
+    BufferedInputStream bufferedInputStream = new BufferedInputStream(xmlFileInputStream);
+    if (xmlFileInputStream.markSupported()) {
+      xmlFileInputStream.mark(Integer.MAX_VALUE);
+    }
+    // TODO Validate XML file without updating it: https://stackoverflow.com/questions/2991091/java-xsd-validation-of-xml-without-namespace
+    success = InspectCodeXmlFileValidator.validateXmlFile(xmlFileInputStream);
+
+    // Reset the input stream to its original position if the XML file has been validated
+    if (bufferedInputStream.markSupported()) {
+      try {
+        bufferedInputStream.reset();
+      } catch (IOException exception) {
+        LOGGER.error("An exception occurred while trying to reset the stream after XML schema validation.", exception);
+        success = false;
+      }
+    } else {
+      LOGGER.error("Could not reset stream after XML schema validation.");
+      success = false;
+    }
+
+    return success;
   }
 }
