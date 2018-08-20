@@ -124,8 +124,8 @@
       <xs:enumeration value="WARNING"/>
       <xs:enumeration value="SUGGESTION"/>
       <xs:enumeration value="HINT"/>
-      <xs:enumeration value="DO_NOT_SHOW"/><!-- This value is contained within the actual output of the inpectcode clt -->
-      <xs:enumeration value="INVALID_SEVERITY"/><!-- This value is contained within the actual output of the inpectcode clt -->
+      <xs:enumeration value="DO_NOT_SHOW"/><!-- This value is contained within the actual output of the inspectcode clt -->
+      <xs:enumeration value="INVALID_SEVERITY"/><!-- This value is contained within the actual output of the inspectcode clt -->
     </xs:restriction>
   </xs:simpleType>
 
