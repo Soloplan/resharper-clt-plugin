@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~    Copyright 2018 Soloplan GmbH
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:plugin="urn:/com/soloplan/oss/sonarqube/plugin/resharper/clt/xml"
+           targetNamespace="urn:/com/soloplan/oss/sonarqube/plugin/resharper/clt/xml"
+           elementFormDefault="qualified">
+
+  <!-- Verifies, that the root element of the XML file is named 'Overrides' and matches the definition declared in 'OverridesType' -->
+  <xs:element name="Overrides" type="plugin:OverridesType"/>
+
+  <!-- Defines an XML element consisting of zero to unlimited elements named 'SonarRuleOverride' -->
+  <xs:complexType name="OverridesType">
+    <xs:sequence>
+      <!-- This element represents a 'SonarRuleOverride', the issue definition dump and report XML files -->
+      <xs:element name="SonarRuleOverride" minOccurs="0" type="plugin:SonarRuleOverrideType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Complex type definition named 'SonarRuleOverride' used above, consisting of simple data types as attributes -->
+  <xs:complexType name="SonarRuleOverrideType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="SonarRuleKey" type="xs:string" use="required"/>
+        <xs:attribute name="SonarRuleType" type="plugin:SonarRuleTypeAttributeType"/> <!-- optional -->
+        <xs:attribute name="SonarSeverity" type="plugin:SonarSeverityAttributeType"/> <!-- optional -->
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <!-- region // ATTRIBUTE TYPE DEFINITIONS // -->
+
+  <!-- This type defines all valid values of the 'SonarSeverity' attribute within the 'IssueTypeOverride' element.
+       For details, visit: http://javadocs.sonarsource.org/6.7/apidocs/org/sonar/api/rule/Severity.html -->
+  <xs:simpleType name="SonarSeverityAttributeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BLOCKER"/>
+      <xs:enumeration value="CRITICAL"/>
+      <xs:enumeration value="MAJOR"/>
+      <xs:enumeration value="MINOR"/>
+      <xs:enumeration value="INFO"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- This type defines all valid values of the 'SonarRuleType' attribute within the 'IssueTypeOverride' element.
+       For details, visit: http://javadocs.sonarsource.org/6.7/apidocs/org/sonar/api/rules/RuleType.html -->
+  <xs:simpleType name="SonarRuleTypeAttributeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BUG"/>
+      <xs:enumeration value="VULNERABILITY"/>
+      <xs:enumeration value="CODE_SMELL"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- endregion // END ATTRIBUTE TYPE DEFINITIONS // -->
+</xs:schema>
