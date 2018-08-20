@@ -69,4 +69,38 @@ public enum SonarQubeSeverity {
   public static SonarQubeSeverity getDefaultSeverity() {
     return SonarQubeSeverity.Major;
   }
+
+  /**
+   * Parses the supplied {@code SonarQube} compatible severity value to its corresponding enumeration. If the supplied {@code severityValue}
+   * is either {@code null}, an empty string or could not be parsed, the default value is returned.
+   *
+   * @param severityValue
+   *     The {@code SonarQube} compatible severity value for which the corresponding enumeration is requested.
+   *
+   * @return The corresponding enumeration of the supplied {@code SonarQube} compatible severity value or the default value if the supplied
+   *     {@code severityValue} is either {@code null}, an empty string or could not be parsed.
+   *
+   * @see #getDefaultSeverity()
+   */
+  public static SonarQubeSeverity fromSeverityValue(String severityValue) {
+    // Return the default value if the supplied severity value is null
+    if (severityValue == null) {
+      return getDefaultSeverity();
+    }
+
+    // Remove all leading and trailing whitespaces from the supplied severity value and check if it is an empty string
+    severityValue = severityValue.trim();
+    if (severityValue.isEmpty()) {
+      return getDefaultSeverity();
+    }
+
+    // Iterate all enumeration values and check if the supplied severity value matches any known value
+    for (SonarQubeSeverity sonarQubeSeverity : SonarQubeSeverity.values()) {
+      if (sonarQubeSeverity.getSonarQubeSeverityValue().equalsIgnoreCase(severityValue)) {
+        return sonarQubeSeverity;
+      }
+    }
+
+    return getDefaultSeverity();
+  }
 }
