@@ -51,15 +51,15 @@ public final class InspectCodePredicates {
 
   /**
    * Creates a new {@link Predicate} that will filter out all {@link InspectCodeIssueDefinitionModel} instances having an {@link
-   * InspectCodeIssueSeverity} of {@link InspectCodeIssueSeverity#DoNotShow} or {@link InspectCodeIssueSeverity#InvalidSeverity}.
+   * InspectCodeIssueSeverity} of {@link InspectCodeIssueSeverity#DO_NOT_SHOW} or {@link InspectCodeIssueSeverity#INVALID_SEVERITY}.
    *
    * @return A {@link Predicate} that will filter out all {@link InspectCodeIssueDefinitionModel} instances with a severity value of {@link
-   *     InspectCodeIssueSeverity#DoNotShow} and {@link InspectCodeIssueSeverity#InvalidSeverity}.
+   *     InspectCodeIssueSeverity#DO_NOT_SHOW} and {@link InspectCodeIssueSeverity#INVALID_SEVERITY}.
    */
   public static Predicate<InspectCodeIssueDefinitionModel> hasValidIssueSeverity() {
     return inspectCodeIssueDefinitionModel ->
-        inspectCodeIssueDefinitionModel.getSeverity() != InspectCodeIssueSeverity.DoNotShow
-            && inspectCodeIssueDefinitionModel.getSeverity() != InspectCodeIssueSeverity.InvalidSeverity;
+        inspectCodeIssueDefinitionModel.getSeverity() != InspectCodeIssueSeverity.DO_NOT_SHOW
+            && inspectCodeIssueDefinitionModel.getSeverity() != InspectCodeIssueSeverity.INVALID_SEVERITY;
   }
 
   /**

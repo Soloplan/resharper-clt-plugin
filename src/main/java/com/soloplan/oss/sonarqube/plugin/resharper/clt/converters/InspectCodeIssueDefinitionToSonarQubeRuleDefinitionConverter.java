@@ -112,13 +112,13 @@ public class InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter
    */
   private static SonarQubeRuleType convertInspectCodeSeverityToRuleType(@NotNull InspectCodeIssueSeverity inspectCodeIssueSeverity) {
     switch (inspectCodeIssueSeverity) {
-      case DoNotShow:
-      case InvalidSeverity:
-      case Hint:
-      case Suggestion:
+      case DO_NOT_SHOW:
+      case INVALID_SEVERITY:
+      case HINT:
+      case SUGGESTION:
         return SonarQubeRuleType.CODE_SMELL;
-      case Warning:
-      case Error:
+      case WARNING:
+      case ERROR:
         return SonarQubeRuleType.BUG;
       default:
         return SonarQubeRuleType.CODE_SMELL;
@@ -135,15 +135,15 @@ public class InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter
    */
   private static SonarQubeSeverity convertInspectCodeSeverityToSonarQubeSeverity(@NotNull InspectCodeIssueSeverity inspectCodeIssueSeverity) {
     switch (inspectCodeIssueSeverity) {
-      case DoNotShow:
-      case InvalidSeverity:
-      case Hint:
+      case DO_NOT_SHOW:
+      case INVALID_SEVERITY:
+      case HINT:
         return SonarQubeSeverity.Info;
-      case Suggestion:
+      case SUGGESTION:
         return SonarQubeSeverity.Minor;
-      case Warning:
+      case WARNING:
         return SonarQubeSeverity.Major;
-      case Error:
+      case ERROR:
         return SonarQubeSeverity.Critical;
       default:
         return SonarQubeSeverity.getDefaultSeverity();
