@@ -18,6 +18,7 @@ package com.soloplan.oss.sonarqube.plugin.resharper.clt.converters;
 
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.enumerations.InspectCodeIssueSeverity;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.enumerations.SonarQubeRuleDescriptionSyntax;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.enumerations.SonarQubeRuleType;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.enumerations.SonarQubeSeverity;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.interfaces.Converter;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.InspectCodeIssueDefinitionModel;
@@ -26,7 +27,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleType;
 
 import java.net.URL;
 import java.util.Collection;
@@ -55,7 +55,7 @@ public class InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter
         combineRuleDescription(inspectCodeIssueDefinitionModel.getDescription(), inspectCodeIssueDefinitionModel.getWikiUrl()),
         SonarQubeRuleDescriptionSyntax.HTML);
     ruleDefinitionModel.setRuleStatus(RuleStatus.READY);
-    ruleDefinitionModel.setRuleType(convertInspectCodeSeverityToRuleType(inspectCodeIssueDefinitionModel.getSeverity()));
+    ruleDefinitionModel.setSonarQubeRuleType(convertInspectCodeSeverityToRuleType(inspectCodeIssueDefinitionModel.getSeverity()));
     ruleDefinitionModel.setSonarQubeSeverity(convertInspectCodeSeverityToSonarQubeSeverity(inspectCodeIssueDefinitionModel.getSeverity()));
 
     // TODO Fill more SonarQube properties and metrics like the debt remediation function?
@@ -103,25 +103,25 @@ public class InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter
   }
 
   /**
-   * Converts the supplied {@link InspectCodeIssueSeverity} value to a SonarQube {@link RuleType}.
+   * Converts the supplied {@link InspectCodeIssueSeverity} value to a SonarQube {@link SonarQubeRuleType}.
    *
    * @param inspectCodeIssueSeverity
-   *     The {@link InspectCodeIssueSeverity} for which the corresponding SonarQube {@link RuleType} is requested.
+   *     The {@link InspectCodeIssueSeverity} for which the corresponding SonarQube {@link SonarQubeRuleType} is requested.
    *
-   * @return The corresponding SonarQube {@link RuleType} for the supplied {@link InspectCodeIssueSeverity}.
+   * @return The corresponding SonarQube {@link SonarQubeRuleType} for the supplied {@link InspectCodeIssueSeverity}.
    */
-  private static RuleType convertInspectCodeSeverityToRuleType(@NotNull InspectCodeIssueSeverity inspectCodeIssueSeverity) {
+  private static SonarQubeRuleType convertInspectCodeSeverityToRuleType(@NotNull InspectCodeIssueSeverity inspectCodeIssueSeverity) {
     switch (inspectCodeIssueSeverity) {
       case DoNotShow:
       case InvalidSeverity:
       case Hint:
       case Suggestion:
-        return RuleType.CODE_SMELL;
+        return SonarQubeRuleType.CODE_SMELL;
       case Warning:
       case Error:
-        return RuleType.BUG;
+        return SonarQubeRuleType.BUG;
       default:
-        return RuleType.CODE_SMELL;
+        return SonarQubeRuleType.CODE_SMELL;
     }
   }
 

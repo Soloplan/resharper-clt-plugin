@@ -101,7 +101,7 @@ public class CSharpRulesDefinition
             .createRule(sonarQubeRuleDefinitionModel.getRuleDefinitionKey())
             .setName(sonarQubeRuleDefinitionModel.getRuleName())
             .setSeverity(sonarQubeRuleDefinitionModel.getSonarQubeSeverity().getSonarQubeSeverityValue())
-            .setType(sonarQubeRuleDefinitionModel.getRuleType())
+            .setType(sonarQubeRuleDefinitionModel.getSonarQubeRuleType().getRuleType())
             .setStatus(sonarQubeRuleDefinitionModel.getRuleStatus())
             .setActivatedByDefault(sonarQubeRuleDefinitionModel.isActivatedByDefault());
 
@@ -281,7 +281,7 @@ public class CSharpRulesDefinition
         // If a matching override could be retrieved from the map, apply its values
         if (ruleDefinitionOverrideModel != null) {
           LOGGER.debug("Applying rule definition override for rule '%s'.", sonarQubeRuleDefinitionModel.getRuleDefinitionKey());
-          sonarQubeRuleDefinitionModel.setRuleType(ruleDefinitionOverrideModel.getSonarQubeRuleType().getSonarQubeRuleType());
+          sonarQubeRuleDefinitionModel.setSonarQubeRuleType(ruleDefinitionOverrideModel.getSonarQubeRuleType());
           sonarQubeRuleDefinitionModel.setSonarQubeSeverity(ruleDefinitionOverrideModel.getSonarQubeSeverity());
         }
       }

@@ -22,7 +22,16 @@ import org.sonar.api.rules.RuleType;
 
 /**
  * Defines rule type values that are compatible with SonarQube. In case the actual string representation as defined by {@code SonarQube} is
- * required, call {@link SonarQubeRuleType#getSonarQubeRuleTypeName()} to retrieve it.
+ * required, call {@link SonarQubeRuleType#getRuleTypeName()} to retrieve it.
+ * The SonarQube compatible rule definition corresponds to the characteristics of the following table.
+ * <table>
+ * <caption>Associations between rule types and characteristics</caption>
+ * <tr><th>Plugin enumeration rule type</th><th>SonarQube SDK rule type</th><th>Characteristic</th></tr>
+ * <tr><td>{@link SonarQubeRuleType#CODE_SMELL}</td><td>{@link RuleType#CODE_SMELL}</td><td>Maintainability</td></tr>
+ * <tr><td>{@link SonarQubeRuleType#BUG}</td><td>{@link RuleType#BUG}</td><td>Reliability</td></tr>
+ * <tr><td>{@link SonarQubeRuleType#VULNERABILITY}</td><td>{@link RuleType#VULNERABILITY}</td><td>Vulnerability</td></tr>
+ * </table>
+ * The default value can be retrieved via {@link #getDefaultRuleType} and corresponds to {@link RuleType#BUG}.
  *
  * @see <a href="https://jira.sonarsource.com/browse/MMF-184">[MMF-184] SonarQube Quality Model with three characteristics - SonarSource</a>
  * @see <a href="https://docs.sonarqube.org/display/SONAR/Rules+-+types+and+severities">Rules - types and severities - SonarQube
@@ -66,7 +75,7 @@ public enum SonarQubeRuleType {
    *
    * @return The string representation of the rule type as defined by {@code SonarQube}.
    */
-  public String getSonarQubeRuleTypeName() {
+  public String getRuleTypeName() {
     return this.ruleType.name();
   }
 
@@ -75,7 +84,7 @@ public enum SonarQubeRuleType {
    *
    * @return The SonarQube compatible {@link RuleType} as defined by the {@code SonarQube} SDK.
    */
-  public RuleType getSonarQubeRuleType() {
+  public RuleType getRuleType() {
     return this.ruleType;
   }
 
@@ -105,7 +114,7 @@ public enum SonarQubeRuleType {
 
     // Iterate all enumeration values and check if the supplied rule type value matches any known value
     for (SonarQubeRuleType sonarQubeRuleType : SonarQubeRuleType.values()) {
-      if (sonarQubeRuleType.getSonarQubeRuleTypeName().equalsIgnoreCase(ruleTypeValue)
+      if (sonarQubeRuleType.getRuleTypeName().equalsIgnoreCase(ruleTypeValue)
           || sonarQubeRuleType.name().equalsIgnoreCase(ruleTypeValue)) {
         return sonarQubeRuleType;
       }
