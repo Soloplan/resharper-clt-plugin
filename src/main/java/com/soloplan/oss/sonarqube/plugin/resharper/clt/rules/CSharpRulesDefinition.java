@@ -21,10 +21,12 @@ import com.soloplan.oss.sonarqube.plugin.resharper.clt.converters.InspectCodeIss
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.converters.InspectCodeIssueToSonarQubeIssueConverter;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.languages.CSharpLanguage;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.SonarQubeRuleDefinitionModel;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.SonarQubeRuleDefinitionOverrideModel;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.predicates.InspectCodePredicates;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.predicates.ObjectPredicates;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.xml.InspectCodeXmlFileParser;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.xml.InspectCodeXmlFileValidator;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.xml.SonarQubeRuleDefinitionOverrideXmlFileParser;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -41,6 +43,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * An implementation of the {@link RulesDefinition} interface which will create a new implementation of the {@link
@@ -88,7 +92,8 @@ public class CSharpRulesDefinition
     // Check if at least a single rule definition has been found
     if (!sonarQubeRuleDefinitions.isEmpty()) {
 
-      // TODO: Parse SonarOverride file and apply its values to the SonarQubeRuleDefinitionModels before using them
+      // Parse SonarOverride file and apply its values to the SonarQubeRuleDefinitionModels before using them
+      this.applySonarQubeRuleDefinitionOverrides(sonarQubeRuleDefinitions);
 
       // Create a new SonarQube rule for each defined issue type
       for (SonarQubeRuleDefinitionModel sonarQubeRuleDefinitionModel : sonarQubeRuleDefinitions) {
@@ -192,6 +197,7 @@ public class CSharpRulesDefinition
             InspectCodePredicates.hasValidIssueSeverity(),
             InspectCodePredicates.hasNonEmptyIssueDescription(),
             InspectCodePredicates.isCSharpIssueDefinition(),
+//            InspectCodePredicates.isVisualBasicIssueDefinition().negate(),
             InspectCodePredicates.isWebRelatedCategory().negate()),
         Collections.singletonList(x -> false),  // Rule definitions should not parse any actual issues
         Collections.singletonList(x -> false)); // Rule definitions should not parse any actual issues
@@ -239,5 +245,160 @@ public class CSharpRulesDefinition
     }
 
     return success;
+  }
+
+  /**
+   * Parses the SonarQube overrides XML file from the plugins resources and applies its values to the supplied collection of {@link
+   * SonarQubeRuleDefinitionModel}s.
+   *
+   * @param sonarQubeRuleDefinitionModels
+   *     The collection of {@link SonarQubeRuleDefinitionModel} instances that will be updated using {@link
+   *     SonarQubeRuleDefinitionOverrideModel} instances parsed from the XML file.
+   */
+  private void applySonarQubeRuleDefinitionOverrides(@NotNull final Collection<SonarQubeRuleDefinitionModel> sonarQubeRuleDefinitionModels) {
+    try {
+      // Parse all SonarQube rule definition overrides from the XML file and create a map using the unique rule identifier as key
+      final Map<String, SonarQubeRuleDefinitionOverrideModel> ruleDefinitionOverrideMap =
+          this.parseSonarQubeRuleDefinitionOverrides().parallelStream()
+              .collect(Collectors.toMap(SonarQubeRuleDefinitionOverrideModel::getRuleDefinitionKey, item -> item));
+
+      LOGGER.debug("Found %d applicable rule overrides.", ruleDefinitionOverrideMap.size());
+
+      // Helper variable
+      SonarQubeRuleDefinitionOverrideModel ruleDefinitionOverrideModel;
+
+      // Iterate all SonarQube rule definitions and apply the override if present
+      for (SonarQubeRuleDefinitionModel sonarQubeRuleDefinitionModel : sonarQubeRuleDefinitionModels) {
+        // Stop iterating over the rule definitions if no more overrides are available
+        if (ruleDefinitionOverrideMap.isEmpty()) {
+          LOGGER.debug("There are no more rule definition overrides left.");
+          break;
+        }
+
+        // Remove the override from the map as it is no longer used in order to improve the speed of future look ups
+        ruleDefinitionOverrideModel = ruleDefinitionOverrideMap.remove(sonarQubeRuleDefinitionModel.getRuleDefinitionKey());
+
+        // If a matching override could be retrieved from the map, apply its values
+        if (ruleDefinitionOverrideModel != null) {
+          LOGGER.debug("Applying rule definition override for rule '%s'.", sonarQubeRuleDefinitionModel.getRuleDefinitionKey());
+          sonarQubeRuleDefinitionModel.setRuleType(ruleDefinitionOverrideModel.getSonarQubeRuleType().getSonarQubeRuleType());
+          sonarQubeRuleDefinitionModel.setSonarQubeSeverity(ruleDefinitionOverrideModel.getSonarQubeSeverity());
+        }
+      }
+
+      LOGGER.debug("Application of rule definition overrides has finished.");
+
+    } catch (Exception exception) {
+      LOGGER.error("An unhandled exception occurred during application of the rule definition overrides.", exception);
+    }
+  }
+
+  /**
+   * Parses all {@code SonarQube} compatible rule definition overrides from the resources file {@code inspectcode-overrides.xml} and
+   * converts them to valid {@link SonarQubeRuleDefinitionOverrideModel} instances.
+   *
+   * @return A {@link Collection} of {@link SonarQubeRuleDefinitionOverrideModel} instances parsed from the XML resource file.
+   */
+  private Collection<SonarQubeRuleDefinitionOverrideModel> parseSonarQubeRuleDefinitionOverrides() {
+    // NOTE: Should be replaced by something more configurable
+    final String resourceName = "/com/jetbrains/resharper/inspectcode/inspectcode-overrides.xml";
+
+    // Initialize the resulting variable so it won't be null
+    Collection<SonarQubeRuleDefinitionOverrideModel> sonarQubeRuleDefinitionOverrides = Collections.emptyList();
+
+    // Declare the input stream upfront instead of using try-with-resource, because we might need to wrap it for schema validation
+    InputStream inputStream = null;
+    //noinspection TryFinallyCanBeTryWithResources (See comment line above)
+    try {
+      // Retrieve the XML file resource to parse
+      inputStream = this.getClass().getResourceAsStream(resourceName);
+
+      if (inputStream == null) {
+        LOGGER.error("Could not find resource '%s'.", resourceName);
+      } else {
+        // Check if XML file validation is enabled
+        final boolean doValidateFile = this.configuration != null
+            ? this.configuration.getBoolean(ReSharperCltConfiguration.PROPERTY_KEY_ENABLE_XML_SCHEMA_VALIDATION).orElse(false)
+            : false;
+
+        // Start XML schema validation only if enabled, otherwise assume the file is valid
+        if (doValidateFile && !this.validateSonarQubeRuleDefinitionOverridesFile(inputStream)) {
+          LOGGER.error("Verification of XML file using the internal XML Schema Definition has failed.");
+        } else {
+          // Parse XML file containing all rule definition overrides
+          sonarQubeRuleDefinitionOverrides = this.parseSonarQubeRuleDefinitionOverrides(inputStream);
+        }
+      }
+    } catch (Exception e) {
+      LOGGER.error("An exception occurred while trying to parse the data stream of the XML file.", e);
+    } finally {
+      // Close the input stream after verification and parsing
+      if (inputStream != null) {
+        try {
+          inputStream.close();
+        } catch (IOException ignored) { /* ignored */ }
+      }
+    }
+
+    return sonarQubeRuleDefinitionOverrides;
+  }
+
+  /**
+   * Validates the content of the {@code SonarQube} compatible rule definition overrides file using an XML schema definition.
+   *
+   * @param xmlFileInputStream
+   *     The {@link InputStream} of the {@code SonarQube} compatible rule definition overrides file.
+   *
+   * @return {@code True} if the validation of the {@code SonarQube} compatible rule definition overrides file using an XML schema
+   *     succeeded; otherwise {@code false}.
+   */
+  private boolean validateSonarQubeRuleDefinitionOverridesFile(@NotNull final InputStream xmlFileInputStream) {
+    // Result variable
+    boolean success;
+
+    // Wrap the resource into a BufferedInputStream because we will reset it later on
+    BufferedInputStream bufferedInputStream = new BufferedInputStream(xmlFileInputStream);
+    if (xmlFileInputStream.markSupported()) {
+      xmlFileInputStream.mark(Integer.MAX_VALUE);
+    }
+    // TODO Validate XML file without updating it: https://stackoverflow.com/questions/2991091/java-xsd-validation-of-xml-without-namespace
+    success = true;
+
+    // Reset the input stream to its original position if the XML file has been validated
+    if (bufferedInputStream.markSupported()) {
+      try {
+        bufferedInputStream.reset();
+      } catch (IOException exception) {
+        LOGGER.error("An exception occurred while trying to reset the stream after XML schema validation.", exception);
+        success = false;
+      }
+    } else {
+      LOGGER.error("Could not reset stream after XML schema validation.");
+      success = false;
+    }
+
+    return success;
+  }
+
+  /**
+   * Parses all SonarQube compatible rule definition overrides from the supplied {@code xmlFileInputStream} and converts them to valid
+   * {@link SonarQubeRuleDefinitionOverrideModel} instances.
+   *
+   * @param xmlFileInputStream
+   *     An {@link InputStream} of an XML file which contains SonarQube compatible rule definition override to be parsed and converted to
+   *     instances of the corresponding model class.
+   *
+   * @return A {@link Collection} of {@link SonarQubeRuleDefinitionOverrideModel} instances parsed from the input stream.
+   */
+  private Collection<SonarQubeRuleDefinitionOverrideModel> parseSonarQubeRuleDefinitionOverrides(@NotNull InputStream xmlFileInputStream) {
+    // Create a new SAX parser implementation that will parse and convert the XML file containing the rule definition overrides
+    final SonarQubeRuleDefinitionOverrideXmlFileParser xmlFileParser = new SonarQubeRuleDefinitionOverrideXmlFileParser();
+    try {
+      final SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+      saxParser.parse(xmlFileInputStream, xmlFileParser);
+    } catch (ParserConfigurationException | SAXException | IOException e) {
+      LOGGER.error("An exception occurred while trying to parse the data stream of the XML file.", e);
+    }
+    return xmlFileParser.getRuleDefinitionOverrides();
   }
 }
