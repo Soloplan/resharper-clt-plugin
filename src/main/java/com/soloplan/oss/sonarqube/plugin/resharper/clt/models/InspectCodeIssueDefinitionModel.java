@@ -190,8 +190,8 @@ public class InspectCodeIssueDefinitionModel {
    * value.
    *
    * @param severityValue
-   *     A {@link String} value that will be parsed to its corresponding {@link InspectCodeIssueSeverity} value and set as the new new
-   *     severity value of this issue as defined by {@code InspectCode}.
+   *     A {@link String} value that will be parsed to its corresponding {@link InspectCodeIssueSeverity} value and set as the new severity
+   *     value of this issue as defined by {@code InspectCode}.
    */
   public void setSeverity(String severityValue) {
     this.severity = InspectCodeIssueSeverity.fromSeverityValue(severityValue);
