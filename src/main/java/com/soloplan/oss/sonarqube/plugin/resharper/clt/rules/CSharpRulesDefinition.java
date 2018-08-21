@@ -197,7 +197,7 @@ public class CSharpRulesDefinition
             InspectCodePredicates.hasValidIssueSeverity(),
             InspectCodePredicates.hasNonEmptyIssueDescription(),
             InspectCodePredicates.isCSharpIssueDefinition(),
-//            InspectCodePredicates.isVisualBasicIssueDefinition().negate(),
+            InspectCodePredicates.isVisualBasicIssueDefinition().negate(),
             InspectCodePredicates.isWebRelatedCategory().negate()),
         Collections.singletonList(x -> false),  // Rule definitions should not parse any actual issues
         Collections.singletonList(x -> false)); // Rule definitions should not parse any actual issues

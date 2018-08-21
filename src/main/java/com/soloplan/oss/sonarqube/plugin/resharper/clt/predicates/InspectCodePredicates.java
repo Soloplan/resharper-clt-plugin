@@ -38,6 +38,18 @@ public final class InspectCodePredicates {
       Pattern.compile("^\\s*(?!AngularHtml\\.|Asp\\.|Cpp|Css|Es\\dFeature|Html\\.|VB|Web\\.|WebConfig\\.)\\S{3,}", Pattern.CASE_INSENSITIVE);
 
   /**
+   * A case-insensitive, pre-compiled regular expression {@link Pattern} that includes specific strings, which are set as value of {@link
+   * InspectCodeIssueDefinitionModel#getIssueTypeId()} and known to belong to the Visual Basic language. More specifically, this {@link
+   * Pattern} will only allow any string that starts with any of the values defined within the round brackets, ignoring whitespace
+   * characters at the start of the string and ensuring that the match will consist of at least three characters.
+   */
+  private static final Pattern PATTERN_ISSUE_IDENTIFIER_VISUAL_BASIC =
+      Pattern.compile("^\\s*(?=VB|RedundantMeQualifier|RedundantMyBaseQualifier|RedundantMyClassQualifier)\\S{3,}", Pattern.CASE_INSENSITIVE);
+
+  /** Class-private constructor to prevent instantiations of this class. */
+  private InspectCodePredicates() { /* Do nothing*/ }
+
+  /**
    * Creates a new {@link Predicate} that will filter out all {@link InspectCodeIssueDefinitionModel} instances having an {@link
    * InspectCodeIssueSeverity} of {@link InspectCodeIssueSeverity#DoNotShow} or {@link InspectCodeIssueSeverity#InvalidSeverity}.
    *
@@ -73,6 +85,18 @@ public final class InspectCodePredicates {
   public static Predicate<InspectCodeIssueDefinitionModel> isCSharpIssueDefinition() {
     return inspectCodeIssueDefinitionModel ->
         PATTERN_ISSUE_IDENTIFIER_CSHARP.matcher(inspectCodeIssueDefinitionModel.getIssueTypeId()).matches();
+  }
+
+  /**
+   * Creates a new {@link Predicate} that will filter out all {@link InspectCodeIssueDefinitionModel} instances having an issue identifier
+   * that is not associated with the Visual Basic language.
+   *
+   * @return A {@link Predicate} that will filter out all {@link InspectCodeIssueDefinitionModel} instances having an issue identifier that
+   *     is not associated with the Visual Basic language.
+   */
+  public static Predicate<InspectCodeIssueDefinitionModel> isVisualBasicIssueDefinition() {
+    return inspectCodeIssueDefinitionModel ->
+        PATTERN_ISSUE_IDENTIFIER_VISUAL_BASIC.matcher(inspectCodeIssueDefinitionModel.getIssueTypeId()).matches();
   }
 
   /**
