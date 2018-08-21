@@ -14,10 +14,8 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   -->
-<!--<plugin:Overrides xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"-->
-<!--xsi:schemaLocation="https://github.com/Soloplan/resharper-clt-plugin/src/main/resources/com/soloplan/oss/sonarqube/plugin/resharper/clt/xml/ inspectcode_override_schema_definition.xsd"-->
-<!--xmlns:plugin="urn:/com/soloplan/oss/sonarqube/plugin/resharper/clt/xml">-->
-<Overrides
-    xmlns="urn:/com/soloplan/oss/sonarqube/plugin/resharper/clt/xml">
-  <SonarRuleOverride SonarRuleKey="RedundantMeQualifier" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
+<Overrides xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation=""
+           xmlns="urn:/com/soloplan/oss/sonarqube/plugin/resharper/clt/xml">
+  <SonarRuleOverride SonarRuleKey="RedundantUsingDirective" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
 </Overrides>
