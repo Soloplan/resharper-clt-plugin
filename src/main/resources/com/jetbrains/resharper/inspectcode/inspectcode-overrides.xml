@@ -18,4 +18,5 @@
            xsi:schemaLocation=""
            xmlns="urn:/com/soloplan/oss/sonarqube/plugin/resharper/clt/xml">
   <SonarRuleOverride SonarRuleKey="RedundantUsingDirective" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
+  <SonarRuleOverride SonarRuleKey="InconsistentNaming" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
 </Overrides>
