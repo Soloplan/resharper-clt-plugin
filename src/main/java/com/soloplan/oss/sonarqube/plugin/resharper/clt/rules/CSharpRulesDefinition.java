@@ -135,7 +135,7 @@ public class CSharpRulesDefinition
   @NotNull
   private Collection<SonarQubeRuleDefinitionModel> getSonarQubeRuleDefinitionsFromInspectCodeFile() {
     // NOTE: Should be replaced by something more configurable
-    final String resourceName = "/com/jetbrains/resharper/inspectcode/inspectcode_2018-2.xml";
+    final String resourceName = "/com/jetbrains/resharper/inspectcode/inspectcode_2018-2-2.xml";
 
     // Initialize the resulting variable so it won't be null
     Collection<SonarQubeRuleDefinitionModel> parsedRuleDefinitions = Collections.emptyList();
