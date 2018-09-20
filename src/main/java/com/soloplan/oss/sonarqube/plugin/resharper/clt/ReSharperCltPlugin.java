@@ -18,7 +18,9 @@ package com.soloplan.oss.sonarqube.plugin.resharper.clt;
 
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.properties.*;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.rules.CSharpRulesDefinition;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.rules.VBNetRulesDefinition;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.sensors.CSharpSensor;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.sensors.VBNetSensor;
 import org.sonar.api.Plugin;
 
 /**
@@ -30,11 +32,9 @@ public class ReSharperCltPlugin
 
   @Override
   public void define(Context context) {
-    // Register languages supported by this plugin
-    // context.addExtension(CSharpLanguage.class); // NOTE: Not yet finished or maybe unnecessary.
-
     // Register rules defined by this plugin
-    context.addExtension(CSharpRulesDefinition.class);
+    context.addExtension(CSharpRulesDefinition.class); // NOTE: Requires the C# plugin to be installed
+    context.addExtension(VBNetRulesDefinition.class);  // NOTE: Requires the VisualBasic.NET plugin to be installed
 
     // Register plugin properties
     context.addExtensions(
@@ -49,5 +49,6 @@ public class ReSharperCltPlugin
 
     // Register sensor extension which parses the resulting XML file and creates SonarQube issues
     context.addExtension(CSharpSensor.class);
+    context.addExtension(VBNetSensor.class);
   }
 }
