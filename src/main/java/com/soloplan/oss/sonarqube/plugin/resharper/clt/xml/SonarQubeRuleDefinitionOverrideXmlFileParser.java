@@ -146,21 +146,21 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
   public void warning(SAXParseException e)
       throws SAXException {
     super.warning(e);
-    this.handleParseException(XmlParserErrorSeverity.Warning, e);
+    this.handleParseException(XmlParserErrorSeverity.WARNING, e);
   }
 
   @Override
   public void error(SAXParseException e)
       throws SAXException {
     super.error(e);
-    this.handleParseException(XmlParserErrorSeverity.Error, e);
+    this.handleParseException(XmlParserErrorSeverity.ERROR, e);
   }
 
   @Override
   public void fatalError(SAXParseException e)
       throws SAXException {
     super.fatalError(e);
-    this.handleParseException(XmlParserErrorSeverity.Fatal, e);
+    this.handleParseException(XmlParserErrorSeverity.FATAL, e);
   }
 
   @Override
@@ -201,14 +201,14 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
             ": " + saxParseException.getMessage();
 
     switch (errorSeverity) {
-      case Info:
+      case INFO:
         LOGGER.info(errorMessage, saxParseException);
         break;
-      case Warning:
+      case WARNING:
         LOGGER.warn(errorMessage, saxParseException);
         break;
-      case Error:
-      case Fatal:
+      case ERROR:
+      case FATAL:
       default:
         LOGGER.error(errorMessage, saxParseException);
         break;
