@@ -59,7 +59,7 @@ public final class InspectCodePredicates {
   public static Predicate<InspectCodeIssueDefinitionModel> hasValidIssueSeverity() {
     return inspectCodeIssueDefinitionModel ->
         inspectCodeIssueDefinitionModel.getSeverity() != InspectCodeIssueSeverity.DO_NOT_SHOW
-            && inspectCodeIssueDefinitionModel.getSeverity() != InspectCodeIssueSeverity.INVALID_SEVERITY;
+        && inspectCodeIssueDefinitionModel.getSeverity() != InspectCodeIssueSeverity.INVALID_SEVERITY;
   }
 
   /**
@@ -72,7 +72,7 @@ public final class InspectCodePredicates {
   public static Predicate<InspectCodeIssueDefinitionModel> hasNonEmptyIssueDescription() {
     return inspectCodeIssueDefinitionModel ->
         inspectCodeIssueDefinitionModel.getDescription() != null
-            && !inspectCodeIssueDefinitionModel.getDescription().trim().isEmpty();
+        && !inspectCodeIssueDefinitionModel.getDescription().trim().isEmpty();
   }
 
   /**
@@ -109,7 +109,8 @@ public final class InspectCodePredicates {
   public static Predicate<InspectCodeIssueDefinitionModel> isWebRelatedCategory() {
     return inspectCodeIssueDefinitionModel ->
         inspectCodeIssueDefinitionModel.getCategory() != null
-            && inspectCodeIssueDefinitionModel.getCategory().equalsIgnoreCase("JsStrictModeErrors");
+        && ("JsStrictModeErrors".equalsIgnoreCase(inspectCodeIssueDefinitionModel.getCategoryId())
+            || "JsStrictModeErrors".equalsIgnoreCase(inspectCodeIssueDefinitionModel.getCategory()));
   }
 
   /**
