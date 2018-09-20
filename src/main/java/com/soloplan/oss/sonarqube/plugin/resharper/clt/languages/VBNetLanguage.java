@@ -17,34 +17,26 @@
 package com.soloplan.oss.sonarqube.plugin.resharper.clt.languages;
 
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.configuration.ReSharperCltConfiguration;
-import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.AbstractLanguage;
-
-import java.util.Arrays;
 
 /**
- * This class defines the Visual Basic .NET language, but is not yet finished.
+ * This class defines the Visual Basic .NET language.
  *
- * @see <a href="https://www.sonarsource.com/products/codeanalyzers/sonarcsharp.html">SonarC# code analyzer</a>
+ * @see <a href="https://www.sonarsource.com/products/codeanalyzers/sonarvbnet.html">SonarVB code analyzer</a>
  */
-public class VBNetLanguage
-    extends AbstractLanguage {
+public final class VBNetLanguage
+    extends BaseLanguage {
 
   /**
    * The key used to identify this language within SonarQube.
    */
-  private static final String LANGUAGE_KEY = "ReSharper-CLT-vbnet";
+  private static final String LANGUAGE_KEY = "resharper-clt-vbnet";
 
   /**
    * The name of the language within SonarQube.
    */
   public static final String LANGUAGE_NAME = "vbnet";
-
-  /**
-   * An implementation of the {@link Configuration} interface provided to the constructor by SonarQube.
-   */
-  private final Configuration configuration;
 
   /**
    * Creates a new instance of the {@link VBNetLanguage} class storing a reference to the supplied {@link Configuration} instance
@@ -55,22 +47,13 @@ public class VBNetLanguage
    * @param configuration
    *     An instance of the {@link Configuration} class provided by the SonarQube instance.
    */
-  public VBNetLanguage(Configuration configuration) {
-    super(LANGUAGE_KEY, LANGUAGE_NAME);
-    this.configuration = configuration;
-  }
-
-  @Override
-  public String[] getFileSuffixes() {
-    // Remove all null or empty strings from the array retrieved from the configuration
-    String[] suffixes =
-        Arrays.stream(StringUtils.stripAll(this.configuration.getStringArray(ReSharperCltConfiguration.PROPERTY_KEY_VBNET_FILE_SUFFIXES)))
-            .filter(StringUtils::isNotBlank)
-            .toArray(String[]::new);
-    // Use the default file suffixes for the language if the configuration did not provide any
-    if (suffixes.length == 0) {
-      suffixes = StringUtils.split(ReSharperCltConfiguration.PROPERTY_KEY_VBNET_FILE_SUFFIXES_DEFAULT_VALUE, ",");
-    }
-    return suffixes;
+  public VBNetLanguage(@NotNull final Configuration configuration) {
+    super(
+        new LanguageConfiguration(
+            LANGUAGE_KEY,
+            LANGUAGE_NAME,
+            ReSharperCltConfiguration.PROPERTY_KEY_VBNET_FILE_SUFFIXES,
+            ReSharperCltConfiguration.PROPERTY_KEY_VBNET_FILE_SUFFIXES_DEFAULT_VALUE),
+        configuration);
   }
 }
