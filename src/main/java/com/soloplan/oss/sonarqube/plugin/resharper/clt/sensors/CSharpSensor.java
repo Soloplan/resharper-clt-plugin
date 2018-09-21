@@ -32,7 +32,7 @@ public class CSharpSensor
   public CSharpSensor() {
     super(
         new SensorConfiguration(
-            "Add issues detected by the InspectCode command line tool to C# files",
+            "ReSharper Command line tools (InspectCode) C# Sensor",
             CSharpLanguage.LANGUAGE_NAME,
             ReSharperCltConfiguration.RULES_REPOSITORY_CSHARP_KEY,
             ReSharperCltConfiguration.PROPERTY_KEY_CS_REPORT_PATH

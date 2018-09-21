@@ -425,7 +425,8 @@ public abstract class BaseSensor
      * will be trimmed before stored internally.
      *
      * @param sensorDescription
-     *     A human-readable description of this sensor. Might further describe its intended purpose or usage.
+     *     A descriptive name of this sensor. Might further describe its intended purpose or usage and will be printed into {@code
+     *     SonarScanner} log.
      * @param languageName
      *     The language identifier used by SonarQube defining the files that this sensor will check.
      * @param repositoryKey

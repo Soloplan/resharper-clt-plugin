@@ -19,6 +19,7 @@ package com.soloplan.oss.sonarqube.plugin.resharper.clt.sensors;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.configuration.ReSharperCltConfiguration;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.languages.VBNetLanguage;
 
+/** A sensor that will parse issues detected by the {@code InspectCode} command line tool for VisualBasic.NET files. */
 public class VBNetSensor
     extends BaseSensor {
 
@@ -31,7 +32,7 @@ public class VBNetSensor
   public VBNetSensor() {
     super(
         new SensorConfiguration(
-            "Add issues detected by the InspectCode command line tool to VisualBasic.NET files",
+            "ReSharper Command line tools (InspectCode) VisualBasic.NET Sensor",
             VBNetLanguage.LANGUAGE_NAME,
             ReSharperCltConfiguration.RULES_REPOSITORY_VBNET_KEY,
             ReSharperCltConfiguration.PROPERTY_KEY_VBNET_REPORT_PATH
