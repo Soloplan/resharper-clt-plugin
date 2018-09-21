@@ -22,18 +22,36 @@ package com.soloplan.oss.sonarqube.plugin.resharper.clt.configuration;
  */
 public final class ReSharperCltConfiguration {
 
-  public static final String PROPERTY_KEY_PROJECT_NAME = "resharper.clt.projectName";
+  /** SonarQube property used to define the file name of the .sln file built by MSBuild. */
   public static final String PROPERTY_KEY_SOLUTION_FILE = "resharper.clt.solutionFile";
+
+  // region Deprecated property identifiers
+
+  @Deprecated
+  public static final String PROPERTY_KEY_PROJECT_NAME = "resharper.clt.projectName";
+  @Deprecated
   public static final String PROPERTY_KEY_INSPECTCODE_PATH = "resharper.clt.inspectCode.path";
+  @Deprecated
   public static final String PROPERTY_KEY_INSPECTCODE_VERSION = "resharper.clt.inspectCode.version";
 
+  // endregion
+
+  /** SonarQube property defining a comma separated list of file extensions to be analyzed for language C#. */
   public static final String PROPERTY_KEY_CS_FILE_SUFFIXES = "sonar.csharp.file.suffixes";
+
+  /** SonarQube property defining the default file extensions for C# files. */
   public static final String PROPERTY_KEY_CS_FILE_SUFFIXES_DEFAULT_VALUE = ".cs";
 
+  /** SonarQube property defining a comma separated list of file extensions to be analyzed for language VisualBasic.NET. */
   public static final String PROPERTY_KEY_VBNET_FILE_SUFFIXES = "sonar.vbnet.file.suffixes";
+
+  /** SonarQube property defining the default file extensions for VisualBasic.NET files. */
   public static final String PROPERTY_KEY_VBNET_FILE_SUFFIXES_DEFAULT_VALUE = ".vb";
 
+  /** SonarQube property defining the location of the InspectCode report XML file for C# issues. */
   public static final String PROPERTY_KEY_CS_REPORT_PATH = "resharper.clt.cs.reportPath";
+
+  /** SonarQube property defining the location of the InspectCode report XML file for VisualBasic.NET issues. */
   public static final String PROPERTY_KEY_VBNET_REPORT_PATH = "resharper.clt.vbnet.reportPath";
 
   /** SonarQube property containing the name of the project currently being processed. */
@@ -53,9 +71,7 @@ public final class ReSharperCltConfiguration {
 
   // region Private constructor to prevent instances of this class
 
-  /**
-   * Private constructor of the utility class {@link ReSharperCltConfiguration} in order to prevent the creation of instances.
-   */
+  /** Private constructor of the utility class {@link ReSharperCltConfiguration} in order to prevent the creation of instances. */
   private ReSharperCltConfiguration() {
   }
 
@@ -127,8 +143,8 @@ public final class ReSharperCltConfiguration {
    */
   public static final String PLUGIN_CONFIGURATION_PROPERTY_DEPRECATED_DESCRIPTION =
       "This property is deprecated and will be removed in a future version.<br />"
-          + "You should stop using it as soon as possible.<br />"
-          + "Consult the migration guide for guidance.";
+      + "You should stop using it as soon as possible.<br />"
+      + "Consult the migration guide for guidance.";
 
   //endregion
 }
