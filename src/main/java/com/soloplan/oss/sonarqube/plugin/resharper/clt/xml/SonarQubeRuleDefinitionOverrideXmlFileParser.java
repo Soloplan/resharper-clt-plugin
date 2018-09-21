@@ -252,6 +252,9 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
         case ATTRIBUTE_NAME_SONARSEVERITY:
           sonarQubeRuleDefinitionOverrideModel.setSonarQubeSeverity(attributes.getValue(index));
           break;
+        case ATTRIBUTE_NAME_SONARRULEKEY:
+          /* The 'SonarRuleKey' attribute has been handled already and this line will prevent the logger from stating it is unhandled. */
+          break;
         default:
           LOGGER.debug(
               "XML element <{}>: Unhandled XML attribute {} found while parsing.",

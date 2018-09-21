@@ -572,6 +572,9 @@ public class InspectCodeXmlFileParser
         case ATTRIBUTE_NAME_GLOBAL:
           inspectCodeIssueDefinitionModel.setGlobalRuleDefinition(attributes.getValue(index));
           break;
+        case ATTRIBUTE_NAME_ID:
+          /* The 'Id' attribute has been handled already and this line will prevent the logger from stating it is unhandled. */
+          break;
         default:
           LOGGER.debug(
               "XML element <{}>: Unhandled XML attribute {} found while parsing.",
