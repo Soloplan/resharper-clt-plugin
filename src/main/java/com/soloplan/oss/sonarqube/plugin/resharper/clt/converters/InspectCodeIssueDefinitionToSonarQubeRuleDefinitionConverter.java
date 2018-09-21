@@ -138,13 +138,13 @@ public class InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter
       case DO_NOT_SHOW:
       case INVALID_SEVERITY:
       case HINT:
-        return SonarQubeSeverity.Info;
+        return SonarQubeSeverity.INFO;
       case SUGGESTION:
-        return SonarQubeSeverity.Minor;
+        return SonarQubeSeverity.MINOR;
       case WARNING:
-        return SonarQubeSeverity.Major;
+        return SonarQubeSeverity.MAJOR;
       case ERROR:
-        return SonarQubeSeverity.Critical;
+        return SonarQubeSeverity.CRITICAL;
       default:
         return SonarQubeSeverity.getDefaultSeverity();
     }

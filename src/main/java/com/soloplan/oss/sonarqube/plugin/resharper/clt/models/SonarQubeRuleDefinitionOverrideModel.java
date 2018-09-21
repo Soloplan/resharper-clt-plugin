@@ -95,7 +95,7 @@ public class SonarQubeRuleDefinitionOverrideModel {
   /**
    * Gets the SonarQube compatible severity value of this rule.
    * <p>
-   * Defaults to {@link SonarQubeSeverity#Major} if not explicitly set via call to {@link #setSonarQubeSeverity(SonarQubeSeverity)}.
+   * Defaults to {@link SonarQubeSeverity#MAJOR} if not explicitly set via call to {@link #setSonarQubeSeverity(SonarQubeSeverity)}.
    * </p>
    *
    * @return The SonarQube compatible severity value of this rule.

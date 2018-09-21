@@ -25,19 +25,19 @@ import org.sonar.api.rule.Severity;
 public enum SonarQubeSeverity {
 
   /** Corresponds to the SonarQube severity value {@value Severity#INFO}. */
-  Info(Severity.INFO),
+  INFO(Severity.INFO),
 
   /** Corresponds to the SonarQube severity value {@value Severity#MINOR}. */
-  Minor(Severity.MINOR),
+  MINOR(Severity.MINOR),
 
   /** Corresponds to the SonarQube severity value {@value Severity#MAJOR}. */
-  Major(Severity.MAJOR),
+  MAJOR(Severity.MAJOR),
 
   /** Corresponds to the SonarQube severity value {@value Severity#CRITICAL}. */
-  Critical(Severity.CRITICAL),
+  CRITICAL(Severity.CRITICAL),
 
   /** Corresponds to the SonarQube severity value {@value Severity#BLOCKER}. */
-  Blocker(Severity.BLOCKER);
+  BLOCKER(Severity.BLOCKER);
 
   /** Contains the {@link String} representation of the SonarQube {@link Severity} value. */
   private final String severity;
@@ -62,12 +62,12 @@ public enum SonarQubeSeverity {
   }
 
   /**
-   * Gets the default SonarQube compatible severity value which corresponds to {@link #Major}.
+   * Gets the default SonarQube compatible severity value which corresponds to {@link #MAJOR}.
    *
-   * @return The default SonarQube compatible severity value which corresponds to {@link #Major}.
+   * @return The default SonarQube compatible severity value which corresponds to {@link #MAJOR}.
    */
   public static SonarQubeSeverity getDefaultSeverity() {
-    return SonarQubeSeverity.Major;
+    return SonarQubeSeverity.MAJOR;
   }
 
   /**
