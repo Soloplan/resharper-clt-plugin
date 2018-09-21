@@ -23,6 +23,9 @@ import java.util.function.Predicate;
  */
 public final class ObjectPredicates {
 
+  /** Class-private constructor to prevent instantiations of this class. */
+  private ObjectPredicates() { /* Do nothing*/ }
+
   /**
    * Creates a new generic {@link Predicate} to filter out {@code null} values.
    *
