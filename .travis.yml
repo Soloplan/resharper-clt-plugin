@@ -23,7 +23,6 @@ jobs:
       script: echo "Deploying to GitHub releases ..."
       deploy:
         # GitHub Releases uses git tags.
-        # If the build commit does not have any tags, one will be created in the form of untagged-*, where * is a random hex string.
         on:
           tags: true
         provider: releases
