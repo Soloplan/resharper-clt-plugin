@@ -23,8 +23,7 @@ jobs:
       script: echo "Deploying to GitHub releases ..."
       deploy:
         # GitHub Releases uses git tags.
-        on:
-          tags: true
+        #on.tags: true
         provider: releases
         # Set in the settings page of your repository, as a secure variable
         api_key: $GITHUB_OAUTH_TOKEN
