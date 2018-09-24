@@ -25,19 +25,19 @@ import org.sonar.api.rule.Severity;
 public enum SonarQubeSeverity {
 
   /** Corresponds to the SonarQube severity value {@value Severity#INFO}. */
-  Info(Severity.INFO),
+  INFO(Severity.INFO),
 
   /** Corresponds to the SonarQube severity value {@value Severity#MINOR}. */
-  Minor(Severity.MINOR),
+  MINOR(Severity.MINOR),
 
   /** Corresponds to the SonarQube severity value {@value Severity#MAJOR}. */
-  Major(Severity.MAJOR),
+  MAJOR(Severity.MAJOR),
 
   /** Corresponds to the SonarQube severity value {@value Severity#CRITICAL}. */
-  Critical(Severity.CRITICAL),
+  CRITICAL(Severity.CRITICAL),
 
   /** Corresponds to the SonarQube severity value {@value Severity#BLOCKER}. */
-  Blocker(Severity.BLOCKER);
+  BLOCKER(Severity.BLOCKER);
 
   /** Contains the {@link String} representation of the SonarQube {@link Severity} value. */
   private final String severity;
@@ -62,11 +62,45 @@ public enum SonarQubeSeverity {
   }
 
   /**
-   * Gets the default SonarQube compatible severity value which corresponds to {@link #Major}.
+   * Gets the default SonarQube compatible severity value which corresponds to {@link #MAJOR}.
    *
-   * @return The default SonarQube compatible severity value which corresponds to {@link #Major}.
+   * @return The default SonarQube compatible severity value which corresponds to {@link #MAJOR}.
    */
   public static SonarQubeSeverity getDefaultSeverity() {
-    return SonarQubeSeverity.Major;
+    return SonarQubeSeverity.MAJOR;
+  }
+
+  /**
+   * Parses the supplied {@code SonarQube} compatible severity value to its corresponding enumeration. If the supplied {@code severityValue}
+   * is either {@code null}, an empty string or could not be parsed, the default value is returned.
+   *
+   * @param severityValue
+   *     The {@code SonarQube} compatible severity value for which the corresponding enumeration is requested.
+   *
+   * @return The corresponding enumeration of the supplied {@code SonarQube} compatible severity value or the default value if the supplied
+   *     {@code severityValue} is either {@code null}, an empty string or could not be parsed.
+   *
+   * @see #getDefaultSeverity()
+   */
+  public static SonarQubeSeverity fromSeverityValue(String severityValue) {
+    // Return the default value if the supplied severity value is null
+    if (severityValue == null) {
+      return getDefaultSeverity();
+    }
+
+    // Remove all leading and trailing whitespaces from the supplied severity value and check if it is an empty string
+    severityValue = severityValue.trim();
+    if (severityValue.isEmpty()) {
+      return getDefaultSeverity();
+    }
+
+    // Iterate all enumeration values and check if the supplied severity value matches any known value
+    for (SonarQubeSeverity sonarQubeSeverity : SonarQubeSeverity.values()) {
+      if (sonarQubeSeverity.getSonarQubeSeverityValue().equalsIgnoreCase(severityValue)) {
+        return sonarQubeSeverity;
+      }
+    }
+
+    return getDefaultSeverity();
   }
 }

@@ -24,22 +24,22 @@ import org.jetbrains.annotations.NotNull;
  */
 public enum InspectCodeIssueSeverity {
   /** Represents the {@code DO_NOT_SHOW} error severity of {@code InspectCode}. */
-  DoNotShow("DO_NOT_SHOW"),
+  DO_NOT_SHOW("DO_NOT_SHOW"),
 
   /** Represents the {@code INVALID_SEVERITY} error severity of {@code InspectCode}. */
-  InvalidSeverity("INVALID_SEVERITY"),
+  INVALID_SEVERITY("INVALID_SEVERITY"),
 
   /** Represents the {@code HINT} error severity of {@code InspectCode}. */
-  Hint("HINT"),
+  HINT("HINT"),
 
   /** Represents the {@code SUGGESTION} error severity of {@code InspectCode}. */
-  Suggestion("SUGGESTION"),
+  SUGGESTION("SUGGESTION"),
 
   /** Represents the {@code WARNING} error severity of {@code InspectCode}. */
-  Warning("WARNING"),
+  WARNING("WARNING"),
 
   /** Represents the {@code ERROR} error severity of {@code InspectCode}. */
-  Error("ERROR");
+  ERROR("ERROR");
 
   /** The string representation of the severity as contained within the resulting XML file of the {@code InspectCode} command line tool. */
   private final String severity;
@@ -66,12 +66,12 @@ public enum InspectCodeIssueSeverity {
   }
 
   /**
-   * Gets the default {@code InspectCode} compatible severity value which corresponds to {@link #Warning}.
+   * Gets the default {@code InspectCode} compatible severity value which corresponds to {@link #WARNING}.
    *
-   * @return The default {@code InspectCode} compatible severity value which corresponds to {@link #Warning}.
+   * @return The default {@code InspectCode} compatible severity value which corresponds to {@link #WARNING}.
    */
   public static InspectCodeIssueSeverity getDefaultSeverity() {
-    return Warning;
+    return WARNING;
   }
 
   /**

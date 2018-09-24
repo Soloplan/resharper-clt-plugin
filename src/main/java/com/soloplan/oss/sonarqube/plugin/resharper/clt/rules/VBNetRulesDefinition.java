@@ -16,10 +16,18 @@
 
 package com.soloplan.oss.sonarqube.plugin.resharper.clt.rules;
 
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.configuration.ReSharperCltConfiguration;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.languages.VBNetLanguage;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.InspectCodeIssueDefinitionModel;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.predicates.InspectCodePredicates;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.predicates.ObjectPredicates;
+import org.jetbrains.annotations.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.Predicate;
 
 /**
  * An implementation of the {@link RulesDefinition} interface which will create a new implementation of the {@link
@@ -27,19 +35,7 @@ import org.sonar.api.utils.log.Loggers;
  * SonarQube.
  */
 public class VBNetRulesDefinition
-    implements RulesDefinition {
-
-  /**
-   * Gets an implementation of the {@link Logger} interface for this class. Please note, that message arguments are defined with {@code {}},
-   * but not with
-   * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html">Formatter</a> syntax.
-   *
-   * @see Logger
-   */
-  private static final Logger LOGGER = Loggers.get(VBNetRulesDefinition.class);
-
-  /** Stores a reference to an instance of the {@link Configuration} class provided to the constructor by the SonarQube instance. */
-  private Configuration configuration;
+    extends BaseRulesDefinition {
 
   /**
    * Creates a new instance of the {@link VBNetRulesDefinition} class storing a reference to the supplied {@link Configuration} instance
@@ -47,15 +43,25 @@ public class VBNetRulesDefinition
    * <a href="https://docs.sonarqube.org/display/DEV/API+Basics#APIBasics-Configuration">official SonarQube API documentation</a> for more
    * information.
    *
-   * @param config
+   * @param configuration
    *     An instance of the {@link Configuration} class provided by the SonarQube instance.
    */
-  public VBNetRulesDefinition(Configuration config) {
-    this.configuration = config;
+  public VBNetRulesDefinition(Configuration configuration) {
+    super(
+        new RulesRepositoryConfiguration(
+            ReSharperCltConfiguration.RULES_REPOSITORY_VBNET_KEY,
+            ReSharperCltConfiguration.RULES_REPOSITORY_VBNET_NAME,
+            VBNetLanguage.LANGUAGE_NAME),
+        configuration);
   }
 
   @Override
-  public void define(Context context) {
-    // TODO Implement this using a base class common to CSharpRulesDefinition and VBNetRulesDefinition
+  protected @Nullable Collection<Predicate<InspectCodeIssueDefinitionModel>> getIssueDefinitionFilterPredicates() {
+    return Arrays.asList(
+        ObjectPredicates.isNotNullPredicate(),
+        InspectCodePredicates.hasValidIssueSeverity(),
+        InspectCodePredicates.hasNonEmptyIssueDescription(),
+        InspectCodePredicates.isVisualBasicIssueDefinition(),
+        InspectCodePredicates.isWebRelatedCategory().negate());
   }
 }
