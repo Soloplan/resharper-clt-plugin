@@ -22,12 +22,10 @@ jobs:
     - name: GitHub Release
       script: echo "Deploying to GitHub releases ..."
       deploy:
-        # Only release new version on branches 'master' and 'development'
+        # GitHub Releases uses git tags.
+        # If the build commit does not have any tags, one will be created in the form of untagged-*, where * is a random hex string.
         on:
-          branches:
-            only:
-              - master
-              - development
+          tags: true
         provider: releases
         # Set in the settings page of your repository, as a secure variable
         api_key: $GITHUB_OAUTH_TOKEN
