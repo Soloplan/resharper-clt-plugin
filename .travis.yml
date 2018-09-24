@@ -19,27 +19,27 @@ jobs:
   include:
     - name: compile
       script: mvn --errors clean:clean compiler:compile resources:resources native2ascii:resources sonar-packaging:sonar-plugin
-    - name: print_working_directory
-      script: "pwd"
+    - name: get_build_artifact
+      script: "export TARGET_FILE=$(ls target/resharper-clt-plugin-*.jar)"
     - name: before-deploy
       script:
-        - "echo ls target/*.jar"
-        - "echo ls target/resharper-clt-plugin-*.jar"
+        - "ls target/*.jar"
+        - "ls target/resharper-clt-plugin-*.jar"
     - name: GitHub Release
       script: echo "Deploying to GitHub releases ..."
       deploy:
         # GitHub Releases uses git tags.
-        on.tags: true
+        on:
+          tags: true
         provider: releases
         # Set in the settings page of your repository, as a secure variable
         api_key: $GITHUB_OAUTH_TOKEN
-        # Enable globbing for file names as the resulting binary will contain its version number
-        file_glob: true
-        file: target/resharper-clt-plugin-*.jar
+        # Target file name is retrieved by previous build job
+        file: $TARGET_FILE
         # Make sure you have skip_cleanup set to true, otherwise Travis CI will delete all the files created during the build
         skip_cleanup: true
         # NOTE: As long as I am testing this feature, I'll allow overwriting of released binaries
         overwrite: true
         # NOTE: As long as I am testing this feature, I'll mark each release as draft
-        draft: true
-        prerelease: true
+        #draft: true
+        #prerelease: true
