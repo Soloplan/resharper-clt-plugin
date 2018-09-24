@@ -28,9 +28,9 @@ jobs:
         provider: releases
         # Set in the settings page of your repository, as a secure variable
         api_key: $GITHUB_OAUTH_TOKEN
-        # Target file name is retrieved by previous build job
+        # Target file name is determined using file glob
         file_glob: true
-        file: target/resharper-clt-plugin-*.jar
+        file: $TRAVIS_BUILD_DIR/target/*.jar
         # Make sure you have skip_cleanup set to true, otherwise Travis CI will delete all the files created during the build
         skip_cleanup: true
         # NOTE: As long as I am testing this feature, I'll allow overwriting of released binaries
