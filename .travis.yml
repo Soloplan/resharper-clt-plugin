@@ -10,7 +10,7 @@ jdk:
   - oraclejdk9
 
 addons:
-  sonarqube: true
+  sonarcloud: true
   apt:
     packages:
       - oracle-java9-installer # Use apt to download and install a more recent update of the JDK in version 9
@@ -20,10 +20,14 @@ jobs:
     - name: compile
       script: mvn --errors clean:clean compiler:compile resources:resources native2ascii:resources sonar-packaging:sonar-plugin
     - name: GitHub Release
-      # Only release new version on branches 'master' and 'development'
-      if: branch IN (master, development)
       script: echo "Deploying to GitHub releases ..."
       deploy:
+        # Only release new version on branches 'master' and 'development'
+        on:
+          branches:
+            only:
+              - master
+              - development
         provider: releases
         # Set in the settings page of your repository, as a secure variable
         api_key: $GITHUB_OAUTH_TOKEN
