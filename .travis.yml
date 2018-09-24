@@ -23,15 +23,21 @@ jobs:
       script: echo "Deploying to GitHub releases ..."
       deploy:
         # GitHub Releases uses git tags.
-        on:
-          tags: true
+        on.tags: true
         provider: releases
         # Set in the settings page of your repository, as a secure variable
         api_key: $GITHUB_OAUTH_TOKEN
         # Enable globbing for file names as the resulting binary will contain its version number
         file_glob: true
-        file: "target/resharper-clt-plugin-*.jar"
+        file: target/resharper-clt-plugin-*.jar
         # Make sure you have skip_cleanup set to true, otherwise Travis CI will delete all the files created during the build
         skip_cleanup: true
         # NOTE: As long as I am testing this feature, I'll allow overwriting of released binaries
         overwrite: true
+        # NOTE: As long as I am testing this feature, I'll mark each release as draft
+        draft: true
+        prerelease: true
+
+before_deploy:
+  - echo ls target/*.jar
+  - echo ls target/resharper-clt-plugin-*.jar
