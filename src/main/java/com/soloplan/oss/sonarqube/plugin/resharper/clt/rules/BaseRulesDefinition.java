@@ -151,7 +151,7 @@ public abstract class BaseRulesDefinition
   @NotNull
   private Collection<SonarQubeRuleDefinitionModel> getSonarQubeRuleDefinitionsFromInspectCodeFile() {
     // TODO: Replace this with something more configurable
-    final String resourceName = "/com/jetbrains/resharper/inspectcode/inspectcode_2018-2-2.xml";
+    final String resourceName = "/com/jetbrains/resharper/inspectcode/inspectcode_issue_definitions.xml";
 
     // Initialize the resulting variable so it won't be null
     Collection<SonarQubeRuleDefinitionModel> parsedRuleDefinitions = Collections.emptyList();
@@ -221,14 +221,14 @@ public abstract class BaseRulesDefinition
   }
 
   /**
-   * Parses all {@code SonarQube} compatible rule definition overrides from the resources file {@code inspectcode-overrides.xml} and
+   * Parses all {@code SonarQube} compatible rule definition overrides from the resources file {@code sonarqube_rule_overrides.xml} and
    * converts them to valid {@link SonarQubeRuleDefinitionOverrideModel} instances.
    *
    * @return A {@link Collection} of {@link SonarQubeRuleDefinitionOverrideModel} instances parsed from the XML resource file.
    */
   private Collection<SonarQubeRuleDefinitionOverrideModel> parseSonarQubeRuleDefinitionOverrides() {
     // TODO: Replace this with something more configurable
-    final String resourceName = "/com/jetbrains/resharper/inspectcode/inspectcode-overrides.xml";
+    final String resourceName = "/com/jetbrains/resharper/inspectcode/sonarqube_rule_overrides.xml";
 
     // Initialize the resulting variable so it won't be null
     Collection<SonarQubeRuleDefinitionOverrideModel> sonarQubeRuleDefinitionOverrides = Collections.emptyList();

@@ -31,10 +31,10 @@ public class SonarQubeRuleDefinitionOverrideXmlFileValidator
    * Defines the full path within the resources of the JAR file where the XML Schema Definition (XSD) file is located, including its file
    * name.
    * <p/>
-   * The value of this constant should correspond to {@code /com/soloplan/oss/sonarqube/plugin/resharper/clt/xml/inspectcode_override_schema_definition.xsd}.
+   * The value of this constant should correspond to {@code /com/soloplan/oss/sonarqube/plugin/resharper/clt/xml/sonarqube_rule_overrides-schema_definition.xsd}.
    */
   private static final String INSPECTCODE_OVERRIDE_XSD_RESOURCE =
-      RESOURCE_URN_BASE + "/inspectcode_override_schema_definition.xsd";
+      RESOURCE_URN_BASE + "/sonarqube_rule_overrides-schema_definition.xsd";
 
   @Override
   protected @Nullable Validator getValidator() {
