@@ -19,6 +19,12 @@ jobs:
   include:
     - name: compile
       script: mvn --errors clean:clean compiler:compile resources:resources native2ascii:resources sonar-packaging:sonar-plugin
+    - name: print_working_directory
+      script: "pwd"
+    - name: before-deploy
+      script:
+        - "echo ls target/*.jar"
+        - "echo ls target/resharper-clt-plugin-*.jar"
     - name: GitHub Release
       script: echo "Deploying to GitHub releases ..."
       deploy:
@@ -37,7 +43,3 @@ jobs:
         # NOTE: As long as I am testing this feature, I'll mark each release as draft
         draft: true
         prerelease: true
-
-before_deploy:
-  - echo ls target/*.jar
-  - echo ls target/resharper-clt-plugin-*.jar
