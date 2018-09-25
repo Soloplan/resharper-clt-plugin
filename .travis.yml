@@ -19,9 +19,6 @@ script:
   - mvn --errors clean:clean compiler:compile resources:resources native2ascii:resources sonar-packaging:sonar-plugin
 
 deploy:
-  # GitHub Releases uses git tags.
-  on:
-    tags: true
   provider: releases
   # Set in the settings page of your repository, as a secure variable
   api_key: $GITHUB_OAUTH_TOKEN
@@ -35,4 +32,7 @@ deploy:
   # NOTE: As long as I am testing this feature, I'll mark each release as draft
   #draft: true
   #prerelease: true
+  # GitHub Releases uses git tags.
+  on:
+    tags: true
 
