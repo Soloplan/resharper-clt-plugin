@@ -1,0 +1,38 @@
+language: java
+sudo: false # Use a container-based environment without root access
+install: true # Skip the 'install' step, since there's nothing special to install
+
+cache:
+  directories:
+    - $HOME/.m2 # Maven artifact repository
+
+jdk:
+  - oraclejdk8
+
+addons:
+  sonarcloud: true
+  apt:
+    packages:
+      - oracle-java9-installer # Use apt to download and install a more recent update of the JDK in version 9
+
+script:
+  - mvn --errors clean:clean compiler:compile resources:resources native2ascii:resources sonar-packaging:sonar-plugin
+
+deploy:
+  provider: releases
+  # Set in the settings page of your repository, as a secure variable
+  api_key: $GITHUB_OAUTH_TOKEN
+  # Target file name is determined using file glob
+  file_glob: true
+  file: $TRAVIS_BUILD_DIR/target/*.jar
+  # Make sure you have skip_cleanup set to true, otherwise Travis CI will delete all the files created during the build
+  skip_cleanup: true
+  # NOTE: As long as I am testing this feature, I'll allow overwriting of released binaries
+  overwrite: true
+  # NOTE: As long as I am testing this feature, I'll mark each release as draft
+  #draft: true
+  #prerelease: true
+  # GitHub Releases uses git tags.
+  on:
+    tags: true
+

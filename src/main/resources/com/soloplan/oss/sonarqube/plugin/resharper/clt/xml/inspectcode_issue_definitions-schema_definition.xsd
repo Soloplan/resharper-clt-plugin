@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<!--
+  ~    Copyright 2018 Soloplan GmbH
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:plugin="urn:/com/soloplan/oss/sonarqube/plugin/resharper/clt/xml"
+           targetNamespace="urn:/com/soloplan/oss/sonarqube/plugin/resharper/clt/xml"
+           elementFormDefault="qualified">
+
+  <!-- Verifies, that the root element of the XML file is named 'Report' and matches the definition declared in 'ReportType' -->
+  <xs:element name="Report" type="plugin:ReportType"/>
+
+  <!-- Defines an XML element having the attribute 'ToolsVersion' and elements named 'Information', 'IssueTypes' -->
+  <xs:complexType name="ReportType">
+    <xs:sequence>
+      <!-- This element is only present for report XML files -->
+      <xs:element name="Information" minOccurs="0" type="plugin:InformationType"/>
+      <!-- This element is present for both, the issue definition dump and report XML files -->
+      <xs:element name="IssueTypes" type="plugin:IssueTypeCollection"/>
+      <!-- This element is only present for report XML files -->
+      <xs:element name="Issues" minOccurs="0" type="plugin:IssuesType"/>
+    </xs:sequence>
+    <xs:attribute name="ToolsVersion" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <!-- region // ISSUE DEFINITION DUMP XML FILE TYPE DEFINITIONS // -->
+
+  <!-- Defines an XML element containing a collection of XML elements named 'IssueType',
+       of which each XML element matches the definition of the 'IssueType' declared below. -->
+  <xs:complexType name="IssueTypeCollection">
+    <xs:sequence>
+      <xs:element name="IssueType" maxOccurs="unbounded" type="plugin:IssueType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Complex type definition named 'IssueType' used above, consisting of simple data types -->
+  <xs:complexType name="IssueType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="Id" type="xs:string" use="required"/>
+        <xs:attribute name="Category" type="xs:string" use="required"/>
+        <xs:attribute name="CategoryId" type="xs:string" use="required"/>
+        <xs:attribute name="SubCategory" type="xs:string"/> <!-- optional -->
+        <xs:attribute name="Description" type="xs:string" use="required"/>
+        <xs:attribute name="Severity" type="plugin:SeverityAttributeType" use="required"/>
+        <xs:attribute name="WikiUrl" type="xs:string"/> <!-- optional -->
+        <xs:attribute name="Global" type="xs:string"/> <!-- optional -->
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <!-- endregion // END ISSUE DEFINITION DUMP XML FILE TYPE DEFINITIONS // -->
+
+  <!-- region // REPORT XML FILE TYPE DEFINITIONS // -->
+
+  <!-- Complex type definition for an XML element named 'Information'. -->
+  <xs:complexType name="InformationType">
+    <xs:sequence>
+      <xs:element name="Solution" type="xs:string"/>
+      <xs:element name="InspectionScope" type="plugin:InspectionScope"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Complex type definition for an XML element named 'InspectionScope', which is defined within element 'Information'. -->
+  <xs:complexType name="InspectionScope">
+    <xs:sequence>
+      <xs:element name="Element" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Complex type definition for an XML element named 'Issues',
+       which contains a collection of 'Project' elements, in which multiple 'Issue' elements are defined -->
+  <xs:complexType name="IssuesType">
+    <xs:sequence>
+      <xs:element name="Project" maxOccurs="unbounded" type="plugin:ProjectType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Complex type definition for an XML element named 'Project',
+       where a collection of 'Issue' elements are defined -->
+  <xs:complexType name="ProjectType">
+    <xs:sequence>
+      <xs:element name="Issue" maxOccurs="unbounded" type="plugin:IssueCollectionType"/>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <!-- Complex type definition for an XML element named 'Issue',
+       which declares attributes, that contain valuable information about the issue and its occurrence. -->
+  <xs:complexType name="IssueCollectionType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="TypeId" type="xs:string" use="required"/>
+        <xs:attribute name="File" type="xs:string" use="required"/>
+        <xs:attribute name="Offset" type="xs:string" use="required"/>
+        <xs:attribute name="Line" type="xs:positiveInteger"/> <!-- optional -->
+        <xs:attribute name="Message" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <!-- endregion // END REPORT XML FILE TYPE DEFINITIONS // -->
+
+  <!-- region // COMMON INSPECTCODE XML FILE TYPE DEFINITIONS // -->
+
+  <!-- This type defines all valid values of the 'Severity' attribute within the 'IssueType' element.
+       For details, visit: https://www.jetbrains.com/help/resharper/Code_Analysis__Code_Inspections.html#severity -->
+  <xs:simpleType name="SeverityAttributeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ERROR"/>
+      <xs:enumeration value="WARNING"/>
+      <xs:enumeration value="SUGGESTION"/>
+      <xs:enumeration value="HINT"/>
+      <xs:enumeration value="DO_NOT_SHOW"/><!-- This value is contained within the actual output of the inspectcode clt -->
+      <xs:enumeration value="INVALID_SEVERITY"/><!-- This value is contained within the actual output of the inspectcode clt -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- endregion // END COMMON INSPECTCODE XML FILE TYPE DEFINITIONS // -->
+</xs:schema>
