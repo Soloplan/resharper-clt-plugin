@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/Soloplan/resharper-clt-plugin.svg?branch=master)](https://travis-ci.com/Soloplan/resharper-clt-plugin)
 # resharper-clt-plugin
 SonarQube plugin for ReSharper Command Line Tools.
 
