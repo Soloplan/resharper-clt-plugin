@@ -38,9 +38,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -227,8 +225,13 @@ public abstract class BaseRulesDefinition
    * @return A {@link Collection} of {@link SonarQubeRuleDefinitionOverrideModel} instances parsed from the XML resource file.
    */
   private Collection<SonarQubeRuleDefinitionOverrideModel> parseSonarQubeRuleDefinitionOverrides() {
-    // TODO: Replace this with something more configurable
-    final String resourceName = "/com/jetbrains/resharper/inspectcode/sonarqube_rule_overrides.xml";
+    final String overrideFileName = "sonarqube_rule_overrides.xml";
+
+    // the override file is either located directly in the application folder or at a path that is specified as environment variable
+    // SONAR_PLUGIN_INSPECTCODE_OVERRIDEFILE
+    String envPath = System.getenv("SONAR_PLUGIN_INSPECTCODE_OVERRIDEFILE");
+    final String localOverrideFile = envPath != null ? envPath : overrideFileName;
+    final String resourceName = "/com/jetbrains/resharper/inspectcode/" + overrideFileName;
 
     // Initialize the resulting variable so it won't be null
     Collection<SonarQubeRuleDefinitionOverrideModel> sonarQubeRuleDefinitionOverrides = Collections.emptyList();
@@ -237,9 +240,14 @@ public abstract class BaseRulesDefinition
     InputStream inputStream = null;
     //noinspection TryFinallyCanBeTryWithResources (See comment line above)
     try {
-      // Retrieve the XML file resource to parse
-      inputStream = this.getClass().getResourceAsStream(resourceName);
-
+      // if a local override file exists: use it, otherwise use the default one from the plugin
+      final File overrideFile = new File(localOverrideFile);
+      if(overrideFile.exists()){
+        inputStream = new FileInputStream(overrideFile.getAbsolutePath());
+      }else {
+        // Retrieve the XML file resource to parse
+        inputStream = this.getClass().getResourceAsStream(resourceName);
+      }
       if (inputStream == null) {
         this.logger.error("Could not find resource '%s'.", resourceName);
       } else {
