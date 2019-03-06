@@ -33,5 +33,9 @@ A more in-depth guide on how to analyze projects that are built using MSBuild ca
       4. End the SonarQube analysis, which will upload the issues to the server \
          `SonarScanner.MSBuild.exe end /d:sonar.login=%SONAR_LOGIN_TOKEN%`
 
+## Configuration
+It's possible to override the SonarSeverity for particular rules by providing a custom `sonarqube_rule_overrides.xml`. This can be either located in the base folder of the application or at a
+location specified with the environment variable: `SONAR_PLUGIN_INSPECTCODE_OVERRIDEFILE=C:\config\my-sonar-inspectcode-rule-override.xml`.
+
 ## License
 This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICENSE) file for details.

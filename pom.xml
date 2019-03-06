@@ -52,6 +52,14 @@
       <organization>Soloplan GmbH</organization>
       <organizationUrl>https://www.soloplan.com</organizationUrl>
     </developer>
+    <developer>
+      <id>steffen-wilke</id>
+      <name>Steffen Wilke</name>
+      <url>https://www.github.com/steffen-wilke</url>
+      <email>mail@steffen.wilke.com</email>
+      <organization>Soloplan GmbH</organization>
+      <organizationUrl>https://www.soloplan.com</organizationUrl>
+    </developer>
   </developers>
   <scm>
     <connection>scm:git:git@github.com:Soloplan/resharper-clt-plugin.git</connection>
