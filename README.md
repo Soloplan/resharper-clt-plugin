@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/Soloplan/resharper-clt-plugin.svg?branch=master)](https://travis-ci.com/Soloplan/resharper-clt-plugin)
-# resharper-clt-plugin
-SonarQube plugin for ReSharper Command Line Tools.
+# SonarQube ReSharper CLT Plugin
+A SonarQube plugin for the ReSharper Command Line Tools.
 
 ## Description
 This plugin enables the analysis of C# and VisualBasic.NET source files contained in .NET projects using the output of the InspectCode [JetBrains ReSharper Command Line Tool](https://www.jetbrains.com/resharper/features/command-line.html).
