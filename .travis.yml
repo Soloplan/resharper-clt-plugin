@@ -7,13 +7,10 @@ cache:
     - $HOME/.m2 # Maven artifact repository
 
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 addons:
   sonarcloud: true
-  apt:
-    packages:
-      - oracle-java9-installer # Use apt to download and install a more recent update of the JDK in version 9
 
 script:
   - mvn --errors clean:clean compiler:compile resources:resources native2ascii:resources sonar-packaging:sonar-plugin
