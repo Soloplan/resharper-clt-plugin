@@ -4,8 +4,8 @@ A SonarQube plugin for the ReSharper Command Line Tools.
 
 ## Description
 This plugin enables the analysis of C# and VisualBasic.NET source files contained in .NET projects using the output of the InspectCode [JetBrains ReSharper Command Line Tool](https://www.jetbrains.com/resharper/features/command-line.html).
-* Supports the most recent version of the [JetBrains ReSharper Command Line Tools](https://www.jetbrains.com/resharper/download/index.html#section=resharper-clt) (at least version 2018.2.2)
-* Compatible with [SonarQube 6.7.x (LTS)](https://www.sonarqube.org/downloads/)
+* Supports the most recent version of the [JetBrains ReSharper Command Line Tools](https://www.jetbrains.com/resharper/download/index.html#section=resharper-clt) (at least version 2020.1.3)
+* Compatible with [SonarQube 7.9.x (LTS)](https://www.sonarqube.org/downloads/)
 * Compatible with the [SonarC# Plugin](https://docs.sonarqube.org/pages/viewpage.action?pageId=1441900) in version 7.5
 * Compatible with the [SonarVB Plugin (Visual Basic .NET)](https://docs.sonarqube.org/display/PLUG/SonarVB) in version 5.2
 
@@ -36,6 +36,14 @@ A more in-depth guide on how to analyze projects that are built using MSBuild ca
 ## Configuration
 It's possible to override the SonarSeverity for particular rules by providing a custom `sonarqube_rule_overrides.xml`. This can be either located in the base folder of the application or at a
 location specified with the environment variable: `SONAR_PLUGIN_INSPECTCODE_OVERRIDEFILE=C:\config\my-sonar-inspectcode-rule-override.xml`.
+
+## Updating the plugin for a new ReSharper version
+The following command can be used to dump the rules into an XML file that is used by this plugin.
+```bat
+inspectcode.exe --dumpIssuesTypes --output="inspectcode_issue_definitions.xml" --no-buildin-settings 
+```
+
+After dumping the new ruleset, it is mandatory to check all the new rules and adjust the `sonarqube_rule_overrides.xml` accordingly, to account for any rules that should be categorized differently by default.
 
 ## License
 This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICENSE) file for details.
