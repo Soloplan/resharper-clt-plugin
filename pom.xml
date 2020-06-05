@@ -5,9 +5,9 @@
   <groupId>com.soloplan.oss.sonarqube.plugin.resharper.clt</groupId>
   <artifactId>resharper-clt-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>1.0.0-RC4</version>
+  <version>1.0.0.202013</version>
 
-  <name>ReSharper command line tools plugin for SonarQube 6.7.x LTS</name>
+  <name>ReSharper command line tools plugin for SonarQube 7.9.x LTS</name>
   <description>Enables the use of ReSharper command line tools with rules on C# and VB.NET code.</description>
   <url>https://www.github.com/Soloplan/sonarqube-resharper-clt</url>
   <inceptionYear>2018</inceptionYear>
@@ -23,7 +23,7 @@
     <!-- Identifies the plugin within SonarQube and is used for translation of string resources -->
     <sonar.pluginName>ReSharperCLT</sonar.pluginName>
     <sonar.pluginClass>com.soloplan.oss.sonarqube.plugin.resharper.clt.ReSharperCltPlugin</sonar.pluginClass>
-    <sonar.apiVersion>6.7.1</sonar.apiVersion>
+    <sonar.apiVersion>7.9</sonar.apiVersion>
     <sonar.sources>src/main/java</sonar.sources>
   </properties>
 
