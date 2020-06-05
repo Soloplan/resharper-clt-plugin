@@ -17,7 +17,9 @@
 package com.soloplan.oss.sonarqube.plugin.resharper.clt.xml;
 
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.enumerations.XmlParserErrorSeverity;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.interfaces.InspectCodeCategoryOverrideProvider;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.interfaces.SonarQubeRuleDefinitionOverrideProvider;
+import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.InspectCodeCategoryOverrideModel;
 import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.SonarQubeRuleDefinitionOverrideModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,9 +40,9 @@ import java.util.LinkedHashSet;
  * each rule definition found within the XML file, inserting it into the resulting collection. After the file has been parsed, the resulting
  * collection can be retrieved via a call to {@link #getRuleDefinitionOverrides()}.
  */
-public class SonarQubeRuleDefinitionOverrideXmlFileParser
-    extends DefaultHandler
-    implements SonarQubeRuleDefinitionOverrideProvider {
+public class RuleOverrideXmlFileParser
+        extends DefaultHandler
+        implements SonarQubeRuleDefinitionOverrideProvider, InspectCodeCategoryOverrideProvider {
 
   // region XML element and attribute names
 
@@ -49,6 +51,8 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
    */
   private static final String ELEMENT_NAME_SONARRULEOVERRIDE = "SonarRuleOverride";
 
+  private static final String ELEMENT_NAME_INSPECTCODECATEGORYOVERRIDE = "InspectCodeCategoryOverride";
+
   /**
    * Defines the name of the {@code SonarRuleKey} XML attribute which is a mandatory attribute for the {@value
    * ELEMENT_NAME_SONARRULEOVERRIDE} XML element.
@@ -56,12 +60,18 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
   private static final String ATTRIBUTE_NAME_SONARRULEKEY = "SonarRuleKey";
 
   /**
-   * Defines the name of the {@code Severity} XML attribute which might be set for the {@value ELEMENT_NAME_SONARRULEOVERRIDE} XML element.
+   * Defines the name of the {@code InspectCodeCategoryId} XML attribute which is a mandatory attribute for the
+   * {@value ELEMENT_NAME_INSPECTCODECATEGORYOVERRIDE} XML element.
+   */
+  private static final String ATTRIBUTE_NAME_CATEGORYID = "InspectCodeCategoryId";
+
+  /**
+   * Defines the name of the {@code Severity} XML attribute which might be set for the rule override XML elements.
    */
   private static final String ATTRIBUTE_NAME_SONARRULETYPE = "SonarRuleType";
 
   /**
-   * Defines the name of the {@code Severity} XML attribute which might be set for the {@value ELEMENT_NAME_SONARRULEOVERRIDE} XML element.
+   * Defines the name of the {@code Severity} XML attribute which might be set for the rule override XML elements.
    */
   private static final String ATTRIBUTE_NAME_SONARSEVERITY = "SonarSeverity";
 
@@ -77,12 +87,21 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
    */
   private static final Logger LOGGER = Loggers.get(InspectCodeXmlFileParser.class);
 
-  /** A {@link Collection} of {@link SonarQubeRuleDefinitionOverrideModel} instances that have been parsed successfully. */
+  /**
+   * A {@link Collection} of {@link SonarQubeRuleDefinitionOverrideModel} instances that have been parsed successfully.
+   */
   @NotNull
   private final Collection<SonarQubeRuleDefinitionOverrideModel> parsedSonarRuleDefinitionOverrides = new LinkedHashSet<>(32);
 
-  /** The {@link SonarQubeRuleDefinitionOverrideModel} that is currently being parsed by the SAX parser implementation. */
+  @NotNull
+  private final Collection<InspectCodeCategoryOverrideModel> parsedInspectCodeCategoryOverrides = new LinkedHashSet<>(32);
+
+  /**
+   * The {@link SonarQubeRuleDefinitionOverrideModel} that is currently being parsed by the SAX parser implementation.
+   */
   private SonarQubeRuleDefinitionOverrideModel currentRuleDefinitionOverride = null;
+
+  private InspectCodeCategoryOverrideModel currentCategoryOverride = null;
 
   @Override
   public @NotNull Collection<SonarQubeRuleDefinitionOverrideModel> getRuleDefinitionOverrides() {
@@ -90,8 +109,13 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
   }
 
   @Override
+  public @NotNull Collection<InspectCodeCategoryOverrideModel> getCategoryOverrides() {
+    return this.parsedInspectCodeCategoryOverrides;
+  }
+
+  @Override
   public void startDocument()
-      throws SAXException {
+          throws SAXException {
     super.startDocument();
 
     // Clear the resulting collection of rule definition overrides before parsing the XML document
@@ -100,13 +124,13 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
 
   @Override
   public void endDocument()
-      throws SAXException {
+          throws SAXException {
     super.endDocument();
   }
 
   @Override
   public void startElement(String uri, String localName, String qualifiedName, Attributes attributes)
-      throws SAXException {
+          throws SAXException {
     super.startElement(uri, localName, qualifiedName, attributes);
 
     // Check if the qualified name of the XML element is not null
@@ -116,6 +140,8 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
 
       if (ELEMENT_NAME_SONARRULEOVERRIDE.equals(qualifiedName)) {
         this.currentRuleDefinitionOverride = this.parseXmlElementIssueType(attributes);
+      } else if (ELEMENT_NAME_INSPECTCODECATEGORYOVERRIDE.equals(qualifiedName)) {
+        this.currentCategoryOverride = this.parseXmlElementCategory(attributes);
       } else {
         LOGGER.debug("The unhandled XML element <{}> has started.", qualifiedName);
       }
@@ -124,7 +150,7 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
 
   @Override
   public void endElement(String uri, String localName, String qualifiedName)
-      throws SAXException {
+          throws SAXException {
     super.endElement(uri, localName, qualifiedName);
 
     // Check if the qualified name of the XML element is not null
@@ -136,6 +162,9 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
         // Add the parsed issue definition to the set and reset the internal variable
         this.parsedSonarRuleDefinitionOverrides.add(this.currentRuleDefinitionOverride);
         this.currentRuleDefinitionOverride = null;
+      } else if (ELEMENT_NAME_INSPECTCODECATEGORYOVERRIDE.equals(qualifiedName)) {
+        this.parsedInspectCodeCategoryOverrides.add(this.currentCategoryOverride);
+        this.currentCategoryOverride = null;
       } else {
         LOGGER.debug("The unhandled XML element <{}> has ended.", qualifiedName);
       }
@@ -144,21 +173,21 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
 
   @Override
   public void warning(SAXParseException e)
-      throws SAXException {
+          throws SAXException {
     super.warning(e);
     this.handleParseException(XmlParserErrorSeverity.WARNING, e);
   }
 
   @Override
   public void error(SAXParseException e)
-      throws SAXException {
+          throws SAXException {
     super.error(e);
     this.handleParseException(XmlParserErrorSeverity.ERROR, e);
   }
 
   @Override
   public void fatalError(SAXParseException e)
-      throws SAXException {
+          throws SAXException {
     super.fatalError(e);
     this.handleParseException(XmlParserErrorSeverity.FATAL, e);
   }
@@ -166,19 +195,19 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
   @Override
   public String toString() {
     return "SonarQubeRuleDefinitionOverrideXmlFileParser{" +
-        "parsedSonarRuleDefinitionOverrides[" + parsedSonarRuleDefinitionOverrides.size() + "]" +
-        ", currentRuleDefinitionOverride=" + currentRuleDefinitionOverride +
-        '}';
+            "parsedSonarRuleDefinitionOverrides[" + parsedSonarRuleDefinitionOverrides.size() + "]" +
+            ", currentRuleDefinitionOverride=" + currentRuleDefinitionOverride +
+            "parsedInspectCodeCategoryOverrides[" + parsedInspectCodeCategoryOverrides.size() + "]" +
+            ", currentCategoryOverride=" + currentCategoryOverride +
+            '}';
   }
 
   /**
    * Handles exceptions that occur during the parsing of an XML file in order to log additional information that could help solve the
    * underlying problem, if any.
    *
-   * @param errorSeverity
-   *     Defines the impact the supplied exception has on the process of parsing.
-   * @param saxParseException
-   *     The exception that has been thrown while parsing the XML document.
+   * @param errorSeverity     Defines the impact the supplied exception has on the process of parsing.
+   * @param saxParseException The exception that has been thrown while parsing the XML document.
    */
   private void handleParseException(XmlParserErrorSeverity errorSeverity, SAXParseException saxParseException) {
     String systemId = saxParseException.getSystemId();
@@ -194,11 +223,11 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
     }
 
     final String errorMessage =
-        errorSeverity.name() +
-            ": URI=" + systemId +
-            ", Line=" + saxParseException.getLineNumber() +
-            ", Column=" + saxParseException.getColumnNumber() +
-            ": " + saxParseException.getMessage();
+            errorSeverity.name() +
+                    ": URI=" + systemId +
+                    ", Line=" + saxParseException.getLineNumber() +
+                    ", Column=" + saxParseException.getColumnNumber() +
+                    ": " + saxParseException.getMessage();
 
     switch (errorSeverity) {
       case INFO:
@@ -219,13 +248,11 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
    * Creates a new instance of the {@link SonarQubeRuleDefinitionOverrideModel} class populated with values provided as argument {@code
    * attributes}, which contains the XML attributes declared for an XML element of name {@value #ELEMENT_NAME_SONARRULEOVERRIDE}.
    *
-   * @param attributes
-   *     An implementation of the {@link Attributes} interface, containing a collection of XML attributes declared for an {@value
-   *     #ELEMENT_NAME_SONARRULEOVERRIDE} XML element.
-   *
+   * @param attributes An implementation of the {@link Attributes} interface, containing a collection of XML attributes declared for an {@value
+   *                   #ELEMENT_NAME_SONARRULEOVERRIDE} XML element.
    * @return A new instance of class {@link SonarQubeRuleDefinitionOverrideModel} populated with values retrieved from the supplied {@code
-   *     attributes} of the XML element {@value #ELEMENT_NAME_SONARRULEOVERRIDE}. Might return {@code null}, if the value of attribute
-   *     {@value #ATTRIBUTE_NAME_SONARRULEKEY} is either {@code null} or an empty string.
+   * attributes} of the XML element {@value #ELEMENT_NAME_SONARRULEOVERRIDE}. Might return {@code null}, if the value of attribute
+   * {@value #ATTRIBUTE_NAME_SONARRULEKEY} is either {@code null} or an empty string.
    */
   @Nullable
   private SonarQubeRuleDefinitionOverrideModel parseXmlElementIssueType(@NotNull final Attributes attributes) {
@@ -239,7 +266,7 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
 
     // Create a new sonar rule override definition model instance
     final SonarQubeRuleDefinitionOverrideModel sonarQubeRuleDefinitionOverrideModel =
-        new SonarQubeRuleDefinitionOverrideModel(ruleDefinitionIdentifier.trim());
+            new SonarQubeRuleDefinitionOverrideModel(ruleDefinitionIdentifier.trim());
 
     // Parse all attributes of the XML element that just started
     final int length = attributes.getLength();
@@ -257,14 +284,54 @@ public class SonarQubeRuleDefinitionOverrideXmlFileParser
           break;
         default:
           LOGGER.debug(
-              "XML element <{}>: Unhandled XML attribute {} found while parsing.",
-              ELEMENT_NAME_SONARRULEOVERRIDE,
-              attributes.getQName(index));
+                  "XML element <{}>: Unhandled XML attribute {} found while parsing.",
+                  ELEMENT_NAME_SONARRULEOVERRIDE,
+                  attributes.getQName(index));
           break;
       }
     }
 
     // Return the populated sonar rule definition override model
     return sonarQubeRuleDefinitionOverrideModel;
+  }
+
+  private InspectCodeCategoryOverrideModel parseXmlElementCategory(Attributes attributes) {
+    // Retrieve the value of attribute 'InspectCodeCategoryId' from the current 'InspectCodeCategoryOverride' XML element
+    final String categoryId = attributes.getValue(ATTRIBUTE_NAME_CATEGORYID);
+
+    // Check if the value of attribute 'InspectCodeCategoryId' is neither null, nor an empty string or return null
+    if (categoryId == null || categoryId.trim().isEmpty()) {
+      return null;
+    }
+
+    // Create a new sonar rule override definition model instance
+    final InspectCodeCategoryOverrideModel inspectCodeCategoryOverrideModel =
+            new InspectCodeCategoryOverrideModel(categoryId.trim());
+
+    // Parse all attributes of the XML element that just started
+    final int length = attributes.getLength();
+    for (int index = 0; index < length; index++) {
+      // Retrieve the name of the attribute and trim any leading or trailing whitespaces
+      switch (attributes.getQName(index).trim()) {
+        case ATTRIBUTE_NAME_SONARRULETYPE:
+          inspectCodeCategoryOverrideModel.setSonarQubeRuleType(attributes.getValue(index));
+          break;
+        case ATTRIBUTE_NAME_SONARSEVERITY:
+          inspectCodeCategoryOverrideModel.setSonarQubeSeverity(attributes.getValue(index));
+          break;
+        case ATTRIBUTE_NAME_CATEGORYID:
+          /* The 'InspectCodeCategoryId' attribute has been handled already and this line will prevent the logger from stating it is unhandled. */
+          break;
+        default:
+          LOGGER.debug(
+                  "XML element <{}>: Unhandled XML attribute {} found while parsing.",
+                  ELEMENT_NAME_INSPECTCODECATEGORYOVERRIDE,
+                  attributes.getQName(index));
+          break;
+      }
+    }
+
+    // Return the populated inspectcode category override model
+    return inspectCodeCategoryOverrideModel;
   }
 }
