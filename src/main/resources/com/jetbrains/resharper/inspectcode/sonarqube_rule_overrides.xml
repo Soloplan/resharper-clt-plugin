@@ -15,6 +15,18 @@
   ~    limitations under the License.
   -->
 <Overrides xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=""  xmlns="urn:/com/soloplan/oss/sonarqube/plugin/resharper/clt/xml">
+  <InspectCodeCategoryOverride InspectCodeCategoryId="BestPractice" SonarRuleType="CODE_SMELL" />
+  <InspectCodeCategoryOverride InspectCodeCategoryId="CodeInfo" SonarRuleType="CODE_SMELL" />
+  <InspectCodeCategoryOverride InspectCodeCategoryId="CodeRedundancy" SonarRuleType="CODE_SMELL" />
+  <InspectCodeCategoryOverride InspectCodeCategoryId="CodeSmell" SonarRuleType="CODE_SMELL" />
+  <InspectCodeCategoryOverride InspectCodeCategoryId="CodeStyleIssues" SonarRuleType="CODE_SMELL" />
+  <InspectCodeCategoryOverride InspectCodeCategoryId="DeclarationRedundancy" SonarRuleType="CODE_SMELL" />
+  <InspectCodeCategoryOverride InspectCodeCategoryId="FormattingIssues" SonarRuleType="CODE_SMELL" />
+  <InspectCodeCategoryOverride InspectCodeCategoryId="LanguageUsage" SonarRuleType="CODE_SMELL" />
+  <InspectCodeCategoryOverride InspectCodeCategoryId="NUnit" SonarRuleType="CODE_SMELL" />
+  <InspectCodeCategoryOverride InspectCodeCategoryId="Spelling" SonarRuleType="CODE_SMELL" />
+  <InspectCodeCategoryOverride InspectCodeCategoryId="XUnit" SonarRuleType="CODE_SMELL" />
+
   <SonarRuleOverride SonarRuleKey="ArrangeThisQualifier" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
   <SonarRuleOverride SonarRuleKey="CheckNamespace" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
   <SonarRuleOverride SonarRuleKey="CSharpWarnings::CS0618" SonarRuleType="CODE_SMELL" SonarSeverity="MAJOR"/>

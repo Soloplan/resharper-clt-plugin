@@ -25,10 +25,12 @@
 
   <!-- Defines an XML element consisting of zero to unlimited elements named 'SonarRuleOverride' -->
   <xs:complexType name="OverridesType">
-    <xs:sequence>
+    <xs:all>
+      <xs:element name="InspectCodeCategoryOverride" minOccurs="0" type="plugin:InspectCodeCategoryOverrideType"/>
+
       <!-- This element represents a 'SonarRuleOverride', the issue definition dump and report XML files -->
       <xs:element name="SonarRuleOverride" minOccurs="0" type="plugin:SonarRuleOverrideType"/>
-    </xs:sequence>
+    </xs:all>
   </xs:complexType>
 
   <!-- Complex type definition named 'SonarRuleOverride' used above, consisting of simple data types as attributes -->
@@ -36,6 +38,17 @@
     <xs:simpleContent>
       <xs:extension base="xs:string">
         <xs:attribute name="SonarRuleKey" type="xs:string" use="required"/>
+        <xs:attribute name="SonarRuleType" type="plugin:SonarRuleTypeAttributeType"/> <!-- optional -->
+        <xs:attribute name="SonarSeverity" type="plugin:SonarSeverityAttributeType"/> <!-- optional -->
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <!-- Complex type definition named 'SonarRuleOverride' used above, consisting of simple data types as attributes -->
+  <xs:complexType name="InspectCodeCategoryOverrideType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="InspectCodeCategoryId" type="plugin:InspectCodeCategoryIdAttributeType" use="required"/>
         <xs:attribute name="SonarRuleType" type="plugin:SonarRuleTypeAttributeType"/> <!-- optional -->
         <xs:attribute name="SonarSeverity" type="plugin:SonarSeverityAttributeType"/> <!-- optional -->
       </xs:extension>
@@ -63,6 +76,26 @@
       <xs:enumeration value="BUG"/>
       <xs:enumeration value="VULNERABILITY"/>
       <xs:enumeration value="CODE_SMELL"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- This type defines all valid values of the 'SonarRuleType' attribute within the 'IssueTypeOverride' element.
+     For details, visit: http://javadocs.sonarsource.org/6.7/apidocs/org/sonar/api/rules/RuleType.html -->
+  <xs:simpleType name="InspectCodeCategoryIdAttributeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="BestPractice"/>
+      <xs:enumeration value="CodeInfo"/>
+      <xs:enumeration value="CodeSmell"/>
+      <xs:enumeration value="CodeStyleIssues"/>
+      <xs:enumeration value="CodeRedundancy"/>
+      <xs:enumeration value="CompilerWarnings"/>
+      <xs:enumeration value="ConstraintViolation"/>
+      <xs:enumeration value="DeclarationRedundancy"/>
+      <xs:enumeration value="FormattingIssues"/>
+      <xs:enumeration value="LanguageUsage"/>
+      <xs:enumeration value="NUnit"/>
+      <xs:enumeration value="Spelling"/>
+      <xs:enumeration value="XUnit"/>
     </xs:restriction>
   </xs:simpleType>
 
