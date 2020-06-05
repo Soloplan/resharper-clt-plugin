@@ -17,6 +17,7 @@
 <Overrides xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=""  xmlns="urn:/com/soloplan/oss/sonarqube/plugin/resharper/clt/xml">
   <InspectCodeCategoryOverride InspectCodeCategoryId="BestPractice" SonarRuleType="CODE_SMELL" />
   <InspectCodeCategoryOverride InspectCodeCategoryId="CodeInfo" SonarRuleType="CODE_SMELL" />
+  <InspectCodeCategoryOverride InspectCodeCategoryId="CodeRedundancy" SonarRuleType="CODE_SMELL" />
   <InspectCodeCategoryOverride InspectCodeCategoryId="CodeSmell" SonarRuleType="CODE_SMELL" />
   <InspectCodeCategoryOverride InspectCodeCategoryId="CodeStyleIssues" SonarRuleType="CODE_SMELL" />
   <InspectCodeCategoryOverride InspectCodeCategoryId="DeclarationRedundancy" SonarRuleType="CODE_SMELL" />
