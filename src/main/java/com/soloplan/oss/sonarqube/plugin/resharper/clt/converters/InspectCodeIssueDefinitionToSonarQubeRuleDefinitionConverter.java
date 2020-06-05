@@ -26,7 +26,6 @@ import com.soloplan.oss.sonarqube.plugin.resharper.clt.models.SonarQubeRuleDefin
 import org.apache.commons.lang.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sonar.api.rule.RuleStatus;
 
 import java.net.URL;
 import java.util.Collection;
@@ -48,13 +47,10 @@ public class InspectCodeIssueDefinitionToSonarQubeRuleDefinitionConverter
 
     // Create a new instance of the SonarQubeRuleDefinitionModel class and fill in the values of the supplied InspectCode issue definition
     final SonarQubeRuleDefinitionModel ruleDefinitionModel =
-        new SonarQubeRuleDefinitionModel(inspectCodeIssueDefinitionModel.getIssueTypeId());
-    ruleDefinitionModel.setRuleName(inspectCodeIssueDefinitionModel.getDescription());
-    ruleDefinitionModel.setActivatedByDefault(false);
+        new SonarQubeRuleDefinitionModel(inspectCodeIssueDefinitionModel);
     ruleDefinitionModel.setRuleDescription(
         combineRuleDescription(inspectCodeIssueDefinitionModel.getDescription(), inspectCodeIssueDefinitionModel.getWikiUrl()),
         SonarQubeRuleDescriptionSyntax.HTML);
-    ruleDefinitionModel.setRuleStatus(RuleStatus.READY);
     ruleDefinitionModel.setSonarQubeRuleType(convertInspectCodeSeverityToRuleType(inspectCodeIssueDefinitionModel.getSeverity()));
     ruleDefinitionModel.setSonarQubeSeverity(convertInspectCodeSeverityToSonarQubeSeverity(inspectCodeIssueDefinitionModel.getSeverity()));
 

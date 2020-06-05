@@ -55,6 +55,8 @@ public final class SonarQubeRuleDefinitionModel {
   /** Indicates, whether the SonarQube rule definition is activated by default or not. */
   private boolean activatedByDefault = false;
 
+  private InspectCodeIssueDefinitionModel inspectcodeModel;
+
   // TODO Create a property for 'Rule tags', that accepts only strings containing the following characters: a-z, 0-9, '+', '-', '#', '.'
 
   // endregion
@@ -69,6 +71,14 @@ public final class SonarQubeRuleDefinitionModel {
    */
   public SonarQubeRuleDefinitionModel(@NotNull String ruleDefinitionKey) {
     this.ruleDefinitionKey = ruleDefinitionKey.trim();
+  }
+
+  public SonarQubeRuleDefinitionModel(@NotNull InspectCodeIssueDefinitionModel model){
+    this.inspectcodeModel = model;
+    this.ruleDefinitionKey = model.getIssueTypeId();
+    this.ruleName = model.getDescription();
+    this.activatedByDefault = false;
+    this.ruleStatus = RuleStatus.READY;
   }
 
   /**
@@ -237,6 +247,10 @@ public final class SonarQubeRuleDefinitionModel {
    */
   public void setActivatedByDefault(boolean activatedByDefault) {
     this.activatedByDefault = activatedByDefault;
+  }
+
+  public InspectCodeIssueDefinitionModel getInspectcodeModel() {
+    return inspectcodeModel;
   }
 
   @Override
