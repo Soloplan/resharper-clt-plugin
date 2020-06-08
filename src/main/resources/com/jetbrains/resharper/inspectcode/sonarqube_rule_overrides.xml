@@ -38,6 +38,7 @@
   <SonarRuleOverride SonarRuleKey="InvalidXmlDocComment" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
   <SonarRuleOverride SonarRuleKey="NonReadonlyMemberInGetHashCode" SonarRuleType="BUG" SonarSeverity="MAJOR"/>
   <SonarRuleOverride SonarRuleKey="PossibleMultipleEnumeration" SonarRuleType="CODE_SMELL" SonarSeverity="CRITICAL"/>
+  <SonarRuleOverride SonarRuleKey="PossibleNullReferenceException" SonarRuleType="BUG" SonarSeverity="MAJOR"/>
   <SonarRuleOverride SonarRuleKey="RedundantArgumentDefaultValue" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
   <SonarRuleOverride SonarRuleKey="RedundantDefaultMemberInitializer" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
   <SonarRuleOverride SonarRuleKey="RedundantUsingDirective" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
