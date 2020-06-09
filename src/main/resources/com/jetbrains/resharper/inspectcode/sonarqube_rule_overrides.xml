@@ -33,6 +33,7 @@
   <SonarRuleOverride SonarRuleKey="CSharpWarnings::CS1573" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
   <SonarRuleOverride SonarRuleKey="CSharpWarnings::CS1591" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
   <SonarRuleOverride SonarRuleKey="CSharpWarnings::CS1587" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
+  <SonarRuleOverride SonarRuleKey="CSharpWarnings::CS1574_CS1584_CS1581_CS1580" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
   <SonarRuleOverride SonarRuleKey="DuplicateResource" SonarRuleType="BUG" SonarSeverity="MINOR"/>
   <SonarRuleOverride SonarRuleKey="InconsistentNaming" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
   <SonarRuleOverride SonarRuleKey="InvalidXmlDocComment" SonarRuleType="CODE_SMELL" SonarSeverity="MINOR"/>
