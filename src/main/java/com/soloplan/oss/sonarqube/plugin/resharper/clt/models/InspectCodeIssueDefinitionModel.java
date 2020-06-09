@@ -63,7 +63,7 @@ public class InspectCodeIssueDefinitionModel {
    *     The unique identifier of this issue as defined by {@code InspectCode}.
    */
   public InspectCodeIssueDefinitionModel(@NotNull String issueTypeId) {
-    this.issueTypeId = issueTypeId.trim();
+    this.issueTypeId = issueTypeId.replace(',', '_').trim();
   }
 
   /**

@@ -57,7 +57,7 @@ public class InspectCodeIssueModel {
    *     The issue type identifier, which should correspond to {@link InspectCodeIssueDefinitionModel#getIssueTypeId()}.
    */
   public void setIssueTypeId(String issueTypeId) {
-    this.issueTypeId = issueTypeId;
+    this.issueTypeId = issueTypeId.replace(',', '_').trim();
   }
 
   /**

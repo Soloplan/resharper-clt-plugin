@@ -70,12 +70,12 @@ public final class SonarQubeRuleDefinitionModel {
    *     are removed from the supplied value. Must not be {@code null}.
    */
   public SonarQubeRuleDefinitionModel(@NotNull String ruleDefinitionKey) {
-    this.ruleDefinitionKey = ruleDefinitionKey.trim();
+    this.ruleDefinitionKey = ruleDefinitionKey.replace(',', '_').trim();
   }
 
   public SonarQubeRuleDefinitionModel(@NotNull InspectCodeIssueDefinitionModel model){
+    this(model.getIssueTypeId());
     this.inspectcodeModel = model;
-    this.ruleDefinitionKey = model.getIssueTypeId();
     this.ruleName = model.getDescription();
     this.activatedByDefault = false;
     this.ruleStatus = RuleStatus.READY;

@@ -544,7 +544,7 @@ public class InspectCodeXmlFileParser
 
     // Create a new issue definition model instance
     final InspectCodeIssueDefinitionModel inspectCodeIssueDefinitionModel =
-        new InspectCodeIssueDefinitionModel(ruleDefinitionIdentifier.trim());
+        new InspectCodeIssueDefinitionModel(ruleDefinitionIdentifier);
 
     // Parse all attributes of the XML element that just started
     final int length = attributes.getLength();
