@@ -57,9 +57,7 @@ public final class InspectCodePredicates {
    *     InspectCodeIssueSeverity#DO_NOT_SHOW} and {@link InspectCodeIssueSeverity#INVALID_SEVERITY}.
    */
   public static Predicate<InspectCodeIssueDefinitionModel> hasValidIssueSeverity() {
-    return inspectCodeIssueDefinitionModel ->
-        inspectCodeIssueDefinitionModel.getSeverity() != InspectCodeIssueSeverity.DO_NOT_SHOW
-        && inspectCodeIssueDefinitionModel.getSeverity() != InspectCodeIssueSeverity.INVALID_SEVERITY;
+    return inspectCodeIssueDefinitionModel -> inspectCodeIssueDefinitionModel.getSeverity() != InspectCodeIssueSeverity.INVALID_SEVERITY;
   }
 
   /**
