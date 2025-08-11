@@ -40,7 +40,7 @@ location specified with the environment variable: `SONAR_PLUGIN_INSPECTCODE_OVER
 ## Updating the plugin for a new ReSharper version
 The following command can be used to dump the rules into an XML file that is used by this plugin.
 ```bat
-inspectcode.exe --dumpIssuesTypes --output="inspectcode_issue_definitions.xml" --no-buildin-settings 
+inspectcode.exe -f="xml" --dumpIssuesTypes --output="inspectcode_issue_definitions.xml" --no-buildin-settings 
 ```
 
 After dumping the new ruleset, it is mandatory to check all the new rules and adjust the `sonarqube_rule_overrides.xml` accordingly, to account for any rules that should be categorized differently by default.

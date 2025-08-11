@@ -60,6 +60,14 @@
       <organization>Soloplan GmbH</organization>
       <organizationUrl>https://www.soloplan.com</organizationUrl>
     </developer>
+    <developer>
+      <id>gamesageddon</id>
+      <name>Raphael Herfort</name>
+      <url>https://github.com/GamesAgeddon</url>
+      <email>raphael.herfort@soloplan.de</email>
+      <organization>Soloplan GmbH</organization>
+      <organizationUrl>https://www.soloplan.com</organizationUrl>
+    </developer>
   </developers>
   <scm>
     <connection>scm:git:git@github.com:Soloplan/resharper-clt-plugin.git</connection>
