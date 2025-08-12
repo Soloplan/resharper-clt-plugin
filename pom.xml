@@ -9,7 +9,7 @@
 
   <name>ReSharper command line tools plugin for SonarQube 7.9.x LTS</name>
   <description>Enables the use of ReSharper command line tools with rules on C# and VB.NET code.</description>
-  <url>https://www.github.com/Soloplan/sonarqube-resharper-clt</url>
+  <url>https://github.com/Soloplan/resharper-clt-plugin</url>
   <inceptionYear>2018</inceptionYear>
   <organization>
     <name>Soloplan GmbH</name>
