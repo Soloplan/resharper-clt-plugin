@@ -5,7 +5,7 @@
   <groupId>com.soloplan.oss.sonarqube.plugin.resharper.clt</groupId>
   <artifactId>resharper-clt-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>1.3.1.202515</version>
+  <version>1.3.2.202530</version>
 
   <name>ReSharper command line tools plugin for SonarQube 7.9.x LTS</name>
   <description>Enables the use of ReSharper command line tools with rules on C# and VB.NET code.</description>
