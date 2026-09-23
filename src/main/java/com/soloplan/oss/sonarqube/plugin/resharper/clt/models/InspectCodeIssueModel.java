@@ -30,10 +30,10 @@ public class InspectCodeIssueModel {
   /** The message further describing the issue. */
   private String message;
 
-  /** The index position of the first character within the {@link #line} of the source code where the issue occurred. */
+  /** The zero-based UTF-16 offset of the first character from the beginning of the source file where the issue occurred. */
   private int offsetStart = -1;
 
-  /** The index position of the last character within the {@link #line} of the source code where the issue occurred. */
+  /** The zero-based UTF-16 offset immediately after the issue range from the beginning of the source file. */
   private int offsetEnd = -1;
 
   /** The line within the source code file where the issue occurred. */
@@ -99,7 +99,7 @@ public class InspectCodeIssueModel {
   }
 
   /**
-   * Sets the index position of the first and last character within the {@link #line} of the source code where the issue occurred by parsing
+   * Sets the absolute start and end offsets from the beginning of the source code file by parsing
    * the supplied {@code offsetRange}, which should be in the form of {@code "[start]-[end]"}, where both values are present and valid
    * integer values.
    *
@@ -139,42 +139,42 @@ public class InspectCodeIssueModel {
   }
 
   /**
-   * Gets the index position of the first character within the {@link #line} of the source code where the issue occurred. Negative values
-   * indicate an invalid index position.
+   * Gets the zero-based UTF-16 offset of the first character from the beginning of the source code file where the issue occurred. Negative
+   * values indicate an invalid offset.
    *
-   * @return The index position of the first character within the {@link #line} of the source code where the issue occurred. Negative values
-   *     indicate an invalid index position.
+   * @return The zero-based UTF-16 offset of the first character from the beginning of the source code file where the issue occurred.
+   *     Negative values indicate an invalid offset.
    */
   public int getOffsetStart() {
     return offsetStart;
   }
 
   /**
-   * Sets the index position of the first character within the {@link #line} of the source code where the issue occurred.
+   * Sets the zero-based UTF-16 offset of the first character from the beginning of the source code file where the issue occurred.
    *
    * @param offsetStart
-   *     The index position of the first character within the {@link #line} of the source code where the issue occurred.
+   *     The zero-based UTF-16 offset of the first character from the beginning of the source code file where the issue occurred.
    */
   public void setOffsetStart(int offsetStart) {
     this.offsetStart = offsetStart;
   }
 
   /**
-   * Gets the index position of the last character within the {@link #line} of the source code where the issue occurred. Negative values
-   * indicate an invalid index position.
+   * Gets the zero-based UTF-16 offset immediately after the issue range from the beginning of the source code file. Negative values
+   * indicate an invalid offset.
    *
-   * @return The index position of the last character within the {@link #line} of the source code where the issue occurred. Negative values
-   *     indicate an invalid index position.
+   * @return The zero-based UTF-16 offset immediately after the issue range from the beginning of the source code file. Negative values
+   *     indicate an invalid offset.
    */
   public int getOffsetEnd() {
     return offsetEnd;
   }
 
   /**
-   * Sets the index position of the last character within the {@link #line} of the source code where the issue occurred.
+   * Sets the zero-based UTF-16 offset immediately after the issue range from the beginning of the source code file.
    *
    * @param offsetEnd
-   *     The index position of the last character within the {@link #line} of the source code where the issue occurred.
+   *     The zero-based UTF-16 offset immediately after the issue range from the beginning of the source code file.
    */
   public void setOffsetEnd(int offsetEnd) {
     this.offsetEnd = offsetEnd;

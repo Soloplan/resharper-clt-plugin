@@ -27,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -197,11 +199,14 @@ public abstract class BaseSensor
         continue;
       }
 
-      // TODO: Create a better TextRange by calculating the start and end character
-      // Note: The InspectCode XML file contains the amount of characters since the start of the file as offset instead of the index within
-      //       the line, hence using sonarQubeIssueModel.getTextRange().start().lineOffset() leads to a runtime exception because there are
-      //       not enough characters within the supplied line
-      TextRange textRange = sourceCodeFile.selectLine(sonarQubeIssueModel.getTextRange().start().line());
+      TextRange textRange = this.getPreciseTextRange(sourceCodeFile, sonarQubeIssueModel);
+      if (textRange == null) {
+        this.logger.warn(
+            "Could not create an exact location for issue for rule {} in file {}. Reporting the complete line instead.",
+            sonarQubeIssueModel.getRuleKey(),
+            sourceCodeFile);
+        textRange = sourceCodeFile.selectLine(sonarQubeIssueModel.getTextRange().start().line());
+      }
 
       NewIssueLocation issueLocation = new DefaultIssueLocation()
           .on(sourceCodeFile)
@@ -211,6 +216,56 @@ public abstract class BaseSensor
       // Create a new issue within SonarQube
       context.newIssue().at(issueLocation).forRule(ruleKeyMap.get(sonarQubeIssueModel.getRuleKey())).save();
     }
+  }
+
+  /**
+   * Converts the absolute UTF-16 offsets supplied by InspectCode to a SonarQube text range.
+   *
+   * <p>InspectCode reports offsets from the beginning of the file, whereas SonarQube pointers use a line number and a zero-based offset
+   * within that line. Java {@link String} indexes also use UTF-16 code units, so scanning the analyzed source content preserves the
+   * meaning of the offsets without a charset conversion.</p>
+   *
+   * @param sourceCodeFile The file in which the issue was reported.
+   * @param issue The issue containing the absolute start and end offsets.
+   * @return The exact issue range, or {@code null} if the report offsets cannot be applied to the analyzed source file.
+   */
+  @Nullable
+  private TextRange getPreciseTextRange(@NotNull InputFile sourceCodeFile, @NotNull SonarQubeIssueModel issue) {
+    final TextRange offsets = issue.getTextRange();
+    final int startOffset = offsets.start().lineOffset();
+    final int endOffset = offsets.end().lineOffset();
+
+    try {
+      final String sourceContents = sourceCodeFile.contents();
+      if (startOffset < 0 || endOffset <= startOffset || endOffset > sourceContents.length()) {
+        return null;
+      }
+
+      return new DefaultTextRange(
+          this.createTextPointer(sourceCodeFile, sourceContents, startOffset),
+          this.createTextPointer(sourceCodeFile, sourceContents, endOffset));
+    } catch (IOException | IllegalArgumentException exception) {
+      this.logger.debug("Could not convert InspectCode offsets to a SonarQube text range for file {}.", sourceCodeFile, exception);
+      return null;
+    }
+  }
+
+  /** Creates a SonarQube text pointer for a zero-based UTF-16 offset from the beginning of a file. */
+  @NotNull
+  private TextPointer createTextPointer(@NotNull InputFile sourceCodeFile, @NotNull String sourceContents, int absoluteOffset) {
+    int line = 1;
+    int lineOffset = 0;
+
+    for (int index = 0; index < absoluteOffset; index++) {
+      if (sourceContents.charAt(index) == '\n') {
+        line++;
+        lineOffset = 0;
+      } else {
+        lineOffset++;
+      }
+    }
+
+    return sourceCodeFile.newPointer(line, lineOffset);
   }
 
   /**
